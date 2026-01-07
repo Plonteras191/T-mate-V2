@@ -5,9 +5,10 @@ import { Card } from '../common/Card';
 import { Avatar } from '../common/Avatar';
 import { Badge } from '../common/Badge';
 import { Button } from '../common/Button';
+import { Feather } from '@expo/vector-icons';
 import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
-import { spacing } from '../../theme/spacing';
+import { spacing, borderRadius } from '../../theme/spacing';
 import { formatDateTime, truncateText, formatMemberCount } from '../../utils/formatters';
 import type { StudyGroupWithDetails } from '../../services/groups.service';
 
@@ -48,13 +49,13 @@ export const GroupCard: React.FC<GroupCardProps> = ({
 
             <View style={styles.details}>
                 <View style={styles.detailRow}>
-                    <Text style={styles.detailIcon}>📅</Text>
+                    <Feather name="calendar" size={14} color={colors.text.secondary} />
                     <Text style={styles.detailText}>
                         {formatDateTime(group.meeting_schedule)}
                     </Text>
                 </View>
                 <View style={styles.detailRow}>
-                    <Text style={styles.detailIcon}>📍</Text>
+                    <Feather name="map-pin" size={14} color={colors.text.secondary} />
                     <Text style={styles.detailText} numberOfLines={1}>
                         {group.meeting_location}
                     </Text>
@@ -62,7 +63,7 @@ export const GroupCard: React.FC<GroupCardProps> = ({
             </View>
 
             <View style={styles.footer}>
-                <TouchableOpacity style={styles.creatorInfo}>
+                <View style={styles.creatorInfo}>
                     <Avatar
                         uri={group.creator?.profile_photo_url}
                         name={group.creator?.full_name || 'Unknown'}
@@ -71,9 +72,10 @@ export const GroupCard: React.FC<GroupCardProps> = ({
                     <Text style={styles.creatorName} numberOfLines={1}>
                         {group.creator?.full_name || 'Unknown'}
                     </Text>
-                </TouchableOpacity>
+                </View>
 
                 <View style={styles.memberInfo}>
+                    <Feather name="users" size={14} color={colors.text.tertiary} style={{ marginRight: 4 }} />
                     <Text style={styles.memberCount}>
                         {formatMemberCount(group.member_count, group.max_capacity)}
                     </Text>
@@ -85,7 +87,7 @@ export const GroupCard: React.FC<GroupCardProps> = ({
                     title="Join Group"
                     onPress={onJoinPress || (() => { })}
                     variant="primary"
-                    size="small"
+                    size="medium"
                     loading={isLoading}
                     fullWidth
                     style={styles.joinButton}
@@ -94,7 +96,8 @@ export const GroupCard: React.FC<GroupCardProps> = ({
 
             {isMember && (
                 <View style={styles.memberBadge}>
-                    <Text style={styles.memberBadgeText}>✓ Joined</Text>
+                    <Feather name="check" size={14} color={colors.success.main} style={{ marginRight: 4 }} />
+                    <Text style={styles.memberBadgeText}>Joined</Text>
                 </View>
             )}
         </Card>
@@ -104,6 +107,7 @@ export const GroupCard: React.FC<GroupCardProps> = ({
 const styles = StyleSheet.create({
     card: {
         marginBottom: spacing[3],
+        borderRadius: borderRadius.lg,
     },
     header: {
         marginBottom: spacing[3],
@@ -112,7 +116,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        marginBottom: spacing[2],
+        marginBottom: spacing[1],
     },
     subject: {
         ...typography.h4,
@@ -123,18 +127,16 @@ const styles = StyleSheet.create({
     description: {
         ...typography.bodySmall,
         color: colors.text.secondary,
+        marginTop: spacing[1],
     },
     details: {
         marginBottom: spacing[3],
+        gap: spacing[1],
     },
     detailRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: spacing[1],
-    },
-    detailIcon: {
-        fontSize: 14,
-        marginRight: spacing[2],
+        gap: spacing[2],
     },
     detailText: {
         ...typography.bodySmall,
@@ -145,6 +147,9 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
+        paddingTop: spacing[3],
+        borderTopWidth: 1,
+        borderTopColor: colors.border.light,
     },
     creatorInfo: {
         flexDirection: 'row',
@@ -157,17 +162,30 @@ const styles = StyleSheet.create({
         marginLeft: spacing[2],
         flex: 1,
     },
-    memberInfo: {},
+    memberInfo: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: colors.background.tertiary,
+        paddingHorizontal: spacing[2],
+        paddingVertical: 2,
+        borderRadius: borderRadius.full,
+    },
     memberCount: {
         ...typography.caption,
-        color: colors.text.tertiary,
+        color: colors.text.secondary,
+        fontWeight: '500',
     },
     joinButton: {
         marginTop: spacing[3],
     },
     memberBadge: {
         marginTop: spacing[3],
+        flexDirection: 'row',
         alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: colors.success.light + '20',
+        paddingVertical: spacing[2],
+        borderRadius: borderRadius.md,
     },
     memberBadgeText: {
         ...typography.bodySmall,

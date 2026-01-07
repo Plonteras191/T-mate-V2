@@ -75,6 +75,21 @@ export const colors = {
     // Overlay
     overlay: 'rgba(0, 0, 0, 0.5)',
 
+    // Accent colors
+    accent: {
+        orange: '#F97316',
+        purple: '#8B5CF6',
+        teal: '#14B8A6',
+    },
+
+    // Feedback colors (alias for better semantics)
+    feedback: {
+        success: '#10B981',
+        warning: '#F59E0B',
+        error: '#EF4444',
+        info: '#3B82F6',
+    },
+
     // Transparent
     transparent: 'transparent',
 } as const;

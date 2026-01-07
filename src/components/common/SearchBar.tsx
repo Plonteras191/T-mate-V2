@@ -5,8 +5,8 @@ import {
     TextInput,
     StyleSheet,
     TouchableOpacity,
-    Text,
 } from 'react-native';
+import { Feather } from '@expo/vector-icons';
 import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
 import { spacing, borderRadius } from '../../theme/spacing';
@@ -33,7 +33,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
 
     return (
         <View style={styles.container}>
-            <Text style={styles.searchIcon}>🔍</Text>
+            <Feather name="search" size={18} color={colors.text.tertiary} style={styles.searchIcon} />
             <TextInput
                 style={styles.input}
                 value={value}
@@ -50,7 +50,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
                     style={styles.clearButton}
                     hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                 >
-                    <Text style={styles.clearIcon}>✕</Text>
+                    <Feather name="x" size={16} color={colors.text.tertiary} />
                 </TouchableOpacity>
             )}
         </View>
@@ -64,10 +64,11 @@ const styles = StyleSheet.create({
         backgroundColor: colors.background.tertiary,
         borderRadius: borderRadius.lg,
         paddingHorizontal: spacing[3],
-        height: 44,
+        height: 48,
+        borderWidth: 1,
+        borderColor: colors.border.light,
     },
     searchIcon: {
-        fontSize: 16,
         marginRight: spacing[2],
     },
     input: {
@@ -78,9 +79,5 @@ const styles = StyleSheet.create({
     },
     clearButton: {
         padding: spacing[1],
-    },
-    clearIcon: {
-        fontSize: 14,
-        color: colors.text.tertiary,
     },
 });

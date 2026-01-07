@@ -3,18 +3,21 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { SearchBar, IconButton } from '../../components/common';
-import { GroupList } from '../../components/groups';
+import { SearchBar } from '../../components/common';
+import { GroupList, CategoryFilter, CategoryType } from '../../components/groups';
 import { useGroups } from '../../hooks/useGroups';
 import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
 import { spacing, borderRadius } from '../../theme/spacing';
 import type { StudyGroupWithDetails } from '../../services/groups.service';
+import { Feather } from '@expo/vector-icons';
 
 type FilterType = 'all' | 'open' | 'full';
 
 export const BrowseGroupsScreen: React.FC = () => {
     const navigation = useNavigation<any>();
+    const [selectedCategory, setSelectedCategory] = useState<CategoryType>('all');
+
     const {
         groups,
         loading,
@@ -32,8 +35,8 @@ export const BrowseGroupsScreen: React.FC = () => {
     } = useGroups();
 
     const filters: { label: string; value: FilterType }[] = [
-        { label: 'All', value: 'all' },
-        { label: 'Open', value: 'open' },
+        { label: 'All Status', value: 'all' },
+        { label: 'Open Only', value: 'open' },
         { label: 'Full', value: 'full' },
     ];
 
@@ -45,18 +48,24 @@ export const BrowseGroupsScreen: React.FC = () => {
         navigation.navigate('CreateGroup');
     };
 
+    // Filter groups locally by category (mock implementation since backend support might be limited)
+    const filteredGroups = selectedCategory === 'all'
+        ? groups
+        : groups.filter(g => g.subject.toLowerCase().includes(selectedCategory.toLowerCase()));
+
     return (
         <SafeAreaView style={styles.safeArea} edges={['top']}>
             <View style={styles.container}>
                 {/* Header */}
                 <View style={styles.header}>
                     <Text style={styles.title}>Browse Groups</Text>
-                    <IconButton
-                        icon="➕"
+                    <TouchableOpacity
+                        style={styles.createButton}
                         onPress={handleCreatePress}
-                        variant="primary"
-                        size="medium"
-                    />
+                    >
+                        <Feather name="plus" size={20} color={colors.primary.main} />
+                        <Text style={styles.createButtonText}>Create</Text>
+                    </TouchableOpacity>
                 </View>
 
                 {/* Search Bar */}
@@ -64,11 +73,19 @@ export const BrowseGroupsScreen: React.FC = () => {
                     <SearchBar
                         value={searchQuery}
                         onChangeText={setSearchQuery}
-                        placeholder="Search by subject..."
+                        placeholder="Search by subject, title..."
                     />
                 </View>
 
-                {/* Filter Chips */}
+                {/* Categories */}
+                <View style={styles.categoryContainer}>
+                    <CategoryFilter
+                        selectedCategory={selectedCategory}
+                        onSelectCategory={setSelectedCategory}
+                    />
+                </View>
+
+                {/* Status Filters */}
                 <View style={styles.filterContainer}>
                     {filters.map((f) => (
                         <TouchableOpacity
@@ -93,7 +110,7 @@ export const BrowseGroupsScreen: React.FC = () => {
 
                 {/* Groups List */}
                 <GroupList
-                    groups={groups}
+                    groups={filteredGroups}
                     loading={loading}
                     refreshing={refreshing}
                     onRefresh={refetch}
@@ -104,7 +121,7 @@ export const BrowseGroupsScreen: React.FC = () => {
                     joiningGroupId={joiningGroupId}
                     emptyIcon="🔍"
                     emptyTitle="No groups found"
-                    emptyDescription="Try a different search or create your own study group!"
+                    emptyDescription={selectedCategory !== 'all' ? `No groups found in ${selectedCategory}` : "Try a different search or create your own study group!"}
                     emptyActionLabel="Create Group"
                     onEmptyAction={handleCreatePress}
                     onEndReached={loadMore}
@@ -134,9 +151,26 @@ const styles = StyleSheet.create({
         ...typography.h2,
         color: colors.text.primary,
     },
+    createButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: colors.primary.main + '15', // light primary bg
+        paddingVertical: spacing[2],
+        paddingHorizontal: spacing[3],
+        borderRadius: borderRadius.full,
+        gap: 4,
+    },
+    createButtonText: {
+        ...typography.bodySmall,
+        color: colors.primary.main,
+        fontWeight: '600',
+    },
     searchContainer: {
         paddingHorizontal: spacing[4],
         marginBottom: spacing[3],
+    },
+    categoryContainer: {
+        marginBottom: spacing[2],
     },
     filterContainer: {
         flexDirection: 'row',
@@ -145,20 +179,24 @@ const styles = StyleSheet.create({
         gap: spacing[2],
     },
     filterChip: {
-        paddingHorizontal: spacing[4],
-        paddingVertical: spacing[2],
-        borderRadius: borderRadius.full,
-        backgroundColor: colors.background.tertiary,
+        paddingHorizontal: spacing[3],
+        paddingVertical: 6,
+        borderRadius: borderRadius.sm,
+        backgroundColor: 'transparent',
     },
     filterChipActive: {
-        backgroundColor: colors.primary.main,
+        backgroundColor: 'transparent',
+        borderBottomWidth: 2,
+        borderBottomColor: colors.primary.main,
+        borderRadius: 0,
     },
     filterChipText: {
-        ...typography.bodySmall,
-        color: colors.text.secondary,
+        ...typography.caption,
+        color: colors.text.tertiary,
         fontWeight: '500',
     },
     filterChipTextActive: {
-        color: colors.text.inverse,
+        color: colors.primary.main,
+        fontWeight: '600',
     },
 });

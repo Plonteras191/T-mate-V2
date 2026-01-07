@@ -16,7 +16,7 @@
 **Purpose:**  
 A mobile application that enables TCC students to create, discover, and join study groups with built-in chat functionality for collaborative learning.
 
----USE TSX NOT TS
+> **Note:** USE TSX NOT TS
 
 ---
 
@@ -802,23 +802,9 @@ export const colors = {
 export type ColorName = keyof typeof colors;
 ```
 
-
-
-
-
-### 9. Success Metrics
-
-- Number of registered users with verified emails
-- Number of study groups created
-- Average messages per group
-- Number of files/images shared per group
-- User retention rate (weekly active users)
-- Average number of groups joined per user
-- Calendar integration usage rate
-
 ---
 
-### 10. Future Enhancements (Post v1.0)
+### 8. Future Enhancements (Post v1.0)
 
 - Push notifications for new messages
 - In-app notification center
@@ -836,62 +822,7 @@ export type ColorName = keyof typeof colors;
 
 ---
 
-### 11. Development Timeline Estimate
-
-**Phase 1: Setup & Authentication (Week 1-2)**
-- Expo project setup with TypeScript
-- TypeScript configuration and strict mode
-- Supabase project configuration
-- Database schema implementation
-- Type generation from Supabase schema
-- Theme constants (colors, typography, spacing) with types
-- Sign Up/Login screens
-- Email verification flow
-- Password reset functionality
-
-**Phase 2: Core Features (Week 3-4)**
-- Profile management with photo upload
-- Study group CRUD operations
-- Browse and search functionality
-- My Groups screen
-- Reusable typed components
-- Type-safe navigation setup
-
-**Phase 3: Basic Chat System (Week 5)**
-- Chat UI implementation
-- Basic text messaging with types
-- Message history loading
-- Chat bubble styling
-- Type-safe message handling
-
-**Phase 4: Rich Chat Features (Week 6-7)**
-- Rich text formatting (bold, italic, emoji)
-- Image sharing and viewer
-- File sharing and download
-- Chat optimization and pagination
-- Attachment styling
-- Type-safe file handling
-
-**Phase 5: Calendar Integration (Week 8)**
-- Calendar view screen
-- Export to device calendar
-- Meeting schedule display
-- Calendar component styling
-- Type-safe calendar events
-
-**Phase 6: Polish & Testing (Week 9-10)**
-- UI/UX refinements
-- Type checking and error handling
-- Bug fixes
-- Testing on multiple devices
-- Report system implementation
-- Performance optimization
-- File upload/download testing
-- Style consistency review
-- TypeScript strict mode validation
-
-
-SUPABASE SCHEMA
+### SUPABASE SCHEMA
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 

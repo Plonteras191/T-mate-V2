@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { Card, Avatar, LoadingSpinner } from '../../components/common';
+import { Card, LoadingSpinner } from '../../components/common';
 import { GroupCard } from '../../components/groups';
 import { useAuth } from '../../hooks/useAuth';
 import * as groupsService from '../../services/groups.service';
@@ -18,7 +18,9 @@ import type { StudyGroupWithDetails } from '../../services/groups.service';
 import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
 import { spacing, borderRadius, shadows } from '../../theme/spacing';
-import { getGreeting, formatDate } from '../../utils/formatters';
+import { HomeHeader } from '../../components/home/HomeHeader';
+import { FeaturedCarousel } from '../../components/home/FeaturedCarousel';
+import { Feather } from '@expo/vector-icons';
 
 export const HomeScreen: React.FC = () => {
     const navigation = useNavigation<any>();
@@ -69,12 +71,27 @@ export const HomeScreen: React.FC = () => {
         });
     };
 
+    const QuickActionButton = ({ icon, label, onPress, color }: any) => (
+        <TouchableOpacity
+            style={[styles.actionCard, { backgroundColor: color + '10' }]}
+            onPress={onPress}
+            activeOpacity={0.7}
+        >
+            <View style={[styles.actionIconContainer, { backgroundColor: color + '20' }]}>
+                {icon}
+            </View>
+            <Text style={[styles.actionLabel, { color: color }]}>{label}</Text>
+        </TouchableOpacity>
+    );
+
     if (loading) {
         return <LoadingSpinner fullScreen message="Loading..." />;
     }
 
     return (
         <SafeAreaView style={styles.safeArea} edges={['top']}>
+            <HomeHeader />
+
             <ScrollView
                 style={styles.container}
                 contentContainerStyle={styles.content}
@@ -88,51 +105,30 @@ export const HomeScreen: React.FC = () => {
                 }
                 showsVerticalScrollIndicator={false}
             >
-                {/* Header */}
-                <View style={styles.header}>
-                    <View style={styles.greetingContainer}>
-                        <Text style={styles.greeting}>{getGreeting()},</Text>
-                        <Text style={styles.userName}>
-                            {user?.full_name?.split(' ')[0] || 'Student'}! 👋
-                        </Text>
-                    </View>
-                    <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
-                        <Avatar
-                            uri={user?.profile_photo_url}
-                            name={user?.full_name || 'User'}
-                            size="medium"
-                        />
-                    </TouchableOpacity>
-                </View>
+                <FeaturedCarousel />
 
                 {/* Quick Actions */}
                 <View style={styles.section}>
                     <Text style={styles.sectionTitle}>Quick Actions</Text>
                     <View style={styles.quickActions}>
-                        <TouchableOpacity
-                            style={styles.actionCard}
+                        <QuickActionButton
+                            icon={<Feather name="search" size={24} color={colors.primary.main} />}
+                            label="Browse"
                             onPress={navigateToBrowse}
-                            activeOpacity={0.7}
-                        >
-                            <Text style={styles.actionIcon}>🔍</Text>
-                            <Text style={styles.actionLabel}>Browse Groups</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={styles.actionCard}
+                            color={colors.primary.main}
+                        />
+                        <QuickActionButton
+                            icon={<Feather name="plus" size={24} color={colors.secondary.main} />}
+                            label="Create"
                             onPress={navigateToCreate}
-                            activeOpacity={0.7}
-                        >
-                            <Text style={styles.actionIcon}>➕</Text>
-                            <Text style={styles.actionLabel}>Create Group</Text>
-                        </TouchableOpacity>
-                        <TouchableOpacity
-                            style={styles.actionCard}
+                            color={colors.secondary.main}
+                        />
+                        <QuickActionButton
+                            icon={<Feather name="book-open" size={24} color={colors.accent.orange} />}
+                            label="My Groups"
                             onPress={navigateToMyGroups}
-                            activeOpacity={0.7}
-                        >
-                            <Text style={styles.actionIcon}>📚</Text>
-                            <Text style={styles.actionLabel}>My Groups</Text>
-                        </TouchableOpacity>
+                            color={colors.accent.orange}
+                        />
                     </View>
                 </View>
 
@@ -140,8 +136,12 @@ export const HomeScreen: React.FC = () => {
                 <View style={styles.section}>
                     <View style={styles.sectionHeader}>
                         <Text style={styles.sectionTitle}>Recently Created</Text>
-                        <TouchableOpacity onPress={navigateToBrowse}>
+                        <TouchableOpacity
+                            style={styles.seeAllContainer}
+                            onPress={navigateToBrowse}
+                        >
                             <Text style={styles.seeAll}>See All</Text>
+                            <Feather name="chevron-right" size={16} color={colors.primary.main} />
                         </TouchableOpacity>
                     </View>
 
@@ -161,6 +161,9 @@ export const HomeScreen: React.FC = () => {
                         </Card>
                     )}
                 </View>
+
+                {/* Bottom padding for TabBar */}
+                <View style={{ height: 100 }} />
             </ScrollView>
         </SafeAreaView>
     );
@@ -177,41 +180,31 @@ const styles = StyleSheet.create({
     content: {
         paddingBottom: spacing[8],
     },
-    header: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        paddingHorizontal: spacing[4],
-        paddingVertical: spacing[4],
-    },
-    greetingContainer: {},
-    greeting: {
-        ...typography.body,
-        color: colors.text.secondary,
-    },
-    userName: {
-        ...typography.h2,
-        color: colors.text.primary,
-    },
     section: {
         paddingHorizontal: spacing[4],
-        marginTop: spacing[4],
+        marginTop: spacing[2],
+        marginBottom: spacing[6],
     },
     sectionHeader: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: spacing[3],
+        marginBottom: spacing[4],
     },
     sectionTitle: {
         ...typography.h4,
         color: colors.text.primary,
-        marginBottom: spacing[3],
+    },
+    seeAllContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
     },
     seeAll: {
         ...typography.body,
         color: colors.primary.main,
-        fontWeight: '500',
+        fontWeight: '600',
+        fontSize: 14,
     },
     quickActions: {
         flexDirection: 'row',
@@ -219,21 +212,20 @@ const styles = StyleSheet.create({
     },
     actionCard: {
         flex: 1,
-        backgroundColor: colors.surface.primary,
         borderRadius: borderRadius.lg,
-        padding: spacing[4],
+        padding: spacing[3],
         alignItems: 'center',
-        ...shadows.sm,
+        justifyContent: 'center',
+        height: 100,
     },
-    actionIcon: {
-        fontSize: 28,
+    actionIconContainer: {
+        padding: spacing[3],
+        borderRadius: borderRadius.full,
         marginBottom: spacing[2],
     },
     actionLabel: {
         ...typography.caption,
-        color: colors.text.primary,
-        textAlign: 'center',
-        fontWeight: '500',
+        fontWeight: '600',
     },
     emptyCard: {
         alignItems: 'center',
