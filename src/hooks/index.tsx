@@ -12,3 +12,4 @@ export { useImagePicker } from './useImagePicker';
 export { useFilePicker } from './useFilePicker';
 export { useFileDownload } from './useFileDownload';
 export { useAttachments } from './useAttachments';
+export { useCalendar } from './useCalendar';

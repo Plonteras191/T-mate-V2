@@ -23,6 +23,7 @@ export type AuthStackParamList = {
 export type MainTabParamList = {
     Home: undefined;
     Groups: NavigatorScreenParams<GroupsStackParamList>;
+    Calendar: undefined;
     MyGroups: undefined;
     Profile: NavigatorScreenParams<ProfileStackParamList>;
 };

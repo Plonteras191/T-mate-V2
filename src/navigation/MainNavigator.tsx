@@ -4,6 +4,7 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Text, StyleSheet, View } from 'react-native';
 import { HomeScreen } from '../screens/main';
 import { MyGroupsScreen } from '../screens/groups';
+import { CalendarScreen } from '../screens/calendar';
 import { GroupsNavigator } from './GroupsNavigator';
 import { ProfileNavigator } from './ProfileNavigator';
 import { colors } from '../theme/colors';
@@ -57,6 +58,16 @@ export const MainNavigator: React.FC = () => {
                     tabBarLabel: 'Browse',
                     tabBarIcon: ({ focused }) => (
                         <TabIcon icon="🔍" focused={focused} label="Browse" />
+                    ),
+                }}
+            />
+            <Tab.Screen
+                name="Calendar"
+                component={CalendarScreen}
+                options={{
+                    tabBarLabel: 'Calendar',
+                    tabBarIcon: ({ focused }) => (
+                        <TabIcon icon="📅" focused={focused} label="Calendar" />
                     ),
                 }}
             />
