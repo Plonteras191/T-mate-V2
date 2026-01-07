@@ -9,6 +9,8 @@ import {
     Platform,
     Text,
 } from 'react-native';
+import type { PendingAttachment } from '../../types/attachment.types';
+import { AttachmentPreview } from './AttachmentPreview';
 import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
 import { spacing } from '../../theme/spacing';
@@ -21,6 +23,8 @@ interface ChatInputProps {
     placeholder?: string;
     disabled?: boolean;
     sending?: boolean;
+    pendingAttachments?: PendingAttachment[];
+    onRemoveAttachment?: (id: string) => void;
 }
 
 export const ChatInput: React.FC<ChatInputProps> = ({
@@ -31,11 +35,20 @@ export const ChatInput: React.FC<ChatInputProps> = ({
     placeholder = 'Type a message...',
     disabled = false,
     sending = false,
+    pendingAttachments,
+    onRemoveAttachment,
 }) => {
-    const canSend = value.trim().length > 0 && !sending && !disabled;
+    const canSend = (value.trim().length > 0 || (pendingAttachments && pendingAttachments.length > 0)) && !sending && !disabled;
 
     return (
-        <View style={styles.container}>
+        <>
+            {pendingAttachments && pendingAttachments.length > 0 && onRemoveAttachment && (
+                <AttachmentPreview
+                    attachments={pendingAttachments}
+                    onRemove={onRemoveAttachment}
+                />
+            )}
+            <View style={styles.container}>
             {/* Attachment button (optional) */}
             {onAttachmentPress && (
                 <TouchableOpacity
@@ -77,7 +90,8 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                     <Text style={styles.sendIcon}>➤</Text>
                 )}
             </TouchableOpacity>
-        </View>
+            </View>
+        </>
     );
 };
 

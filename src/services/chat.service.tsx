@@ -7,8 +7,26 @@ import type {
     MessagePaginationParams,
     UserProfile,
 } from '../types/chat.types';
+import type { UploadedAttachment } from '../types/attachment.types';
 
 const DEFAULT_PAGE_SIZE = 50;
+
+/**
+ * Get attachments for a message
+ */
+const getMessageAttachments = async (messageId: string): Promise<UploadedAttachment[]> => {
+    const { data, error } = await supabase
+        .from('message_attachments')
+        .select('*')
+        .eq('message_id', messageId);
+
+    if (error) {
+        console.error('Error fetching attachments:', error);
+        return [];
+    }
+
+    return (data || []) as UploadedAttachment[];
+};
 
 /**
  * Get messages for a group with pagination
@@ -40,18 +58,22 @@ export const getMessages = async ({
         const hasMore = (data?.length || 0) > limit;
         const messages = hasMore ? data.slice(0, -1) : data;
 
-        // Fetch sender info for each message
+        // Fetch sender info and attachments for each message
         const messagesWithSenders = await Promise.all(
             (messages || []).map(async (message: any) => {
-                const { data: senderData } = await supabase
-                    .from('users')
-                    .select('id, full_name, profile_photo_url')
-                    .eq('id', message.sender_id)
-                    .single();
+                const [senderResult, attachments] = await Promise.all([
+                    supabase
+                        .from('users')
+                        .select('id, full_name, profile_photo_url')
+                        .eq('id', message.sender_id)
+                        .single(),
+                    getMessageAttachments(message.id),
+                ]);
 
                 return {
                     ...message,
-                    sender: senderData as UserProfile,
+                    sender: senderResult.data as UserProfile,
+                    attachments,
                 } as MessageWithSender;
             })
         );
@@ -111,7 +133,7 @@ export const sendMessage = async (
 };
 
 /**
- * Get a single message by ID with sender info
+ * Get a single message by ID with sender info and attachments
  */
 export const getMessageById = async (
     messageId: string
@@ -125,16 +147,20 @@ export const getMessageById = async (
 
         if (error) throw error;
 
-        // Get sender info
-        const { data: senderData } = await supabase
-            .from('users')
-            .select('id, full_name, profile_photo_url')
-            .eq('id', (data as any).sender_id)
-            .single();
+        // Get sender info and attachments in parallel
+        const [senderResult, attachments] = await Promise.all([
+            supabase
+                .from('users')
+                .select('id, full_name, profile_photo_url')
+                .eq('id', (data as any).sender_id)
+                .single(),
+            getMessageAttachments(messageId),
+        ]);
 
         return {
             ...(data as any),
-            sender: senderData as UserProfile,
+            sender: senderResult.data as UserProfile,
+            attachments,
         } as MessageWithSender;
     } catch (error) {
         console.error('Error fetching message:', error);
@@ -210,3 +236,82 @@ export const getMessageCount = async (groupId: string): Promise<number> => {
 
     return count || 0;
 };
+
+/**
+ * Send message with attachments
+ */
+export const sendMessageWithAttachments = async (
+    groupId: string,
+    messageText: string | null,
+    messageType: 'text' | 'image' | 'file',
+    attachments: Array<{
+        attachment_type: string;
+        file_url: string;
+        file_name: string;
+        file_size: number;
+        thumbnail_url: string | null;
+    }>
+): Promise<any | null> => {
+    try {
+        const {
+            data: { user },
+        } = await supabase.auth.getUser();
+
+        if (!user) throw new Error('Not authenticated');
+
+        // Create message first
+        const { data: message, error: msgError } = await supabase
+            .from('messages')
+            .insert({
+                group_id: groupId,
+                sender_id: user.id,
+                message_text: messageText,
+                message_type: messageType,
+                formatting: null,
+            })
+            .select('*')
+            .single();
+
+        if (msgError) throw msgError;
+
+        // Create attachment records
+        const attachmentRecords = [];
+        if (attachments.length > 0) {
+            for (const att of attachments) {
+                const { data: attachmentData, error: attError } = await supabase
+                    .from('message_attachments')
+                    .insert({
+                        message_id: message.id,
+                        attachment_type: att.attachment_type,
+                        file_url: att.file_url,
+                        file_name: att.file_name,
+                        file_size: att.file_size,
+                        thumbnail_url: att.thumbnail_url,
+                    })
+                    .select()
+                    .single();
+
+                if (attachmentData) {
+                    attachmentRecords.push(attachmentData);
+                }
+            }
+        }
+
+        // Get sender info
+        const { data: senderData } = await supabase
+            .from('users')
+            .select('id, full_name, profile_photo_url')
+            .eq('id', user.id)
+            .single();
+
+        return {
+            ...message,
+            sender: senderData,
+            attachments: attachmentRecords,
+        };
+    } catch (error) {
+        console.error('Error sending message with attachments:', error);
+        return null;
+    }
+};
+

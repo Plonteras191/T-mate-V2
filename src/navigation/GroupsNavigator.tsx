@@ -8,7 +8,7 @@ import {
     GroupDetailsScreen,
     GroupMembersScreen,
 } from '../screens/groups';
-import { GroupChatScreen } from '../screens/chat';
+import { GroupChatScreen, ImageViewerScreen } from '../screens/chat';
 import { ViewUserProfileScreen } from '../screens/profile';
 import type { GroupsStackParamList } from '../types/navigation.types';
 import { colors } from '../theme/colors';
@@ -31,6 +31,11 @@ export const GroupsNavigator: React.FC = () => {
             <Stack.Screen name="GroupMembers" component={GroupMembersScreen} />
             <Stack.Screen name="GroupChat" component={GroupChatScreen} />
             <Stack.Screen name="ViewUserProfile" component={ViewUserProfileScreen} />
+            <Stack.Screen
+                name="ImageViewer"
+                component={ImageViewerScreen}
+                options={{ headerShown: false, presentation: 'fullScreenModal' }}
+            />
         </Stack.Navigator>
     );
 };

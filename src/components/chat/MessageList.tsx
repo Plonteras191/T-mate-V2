@@ -4,6 +4,7 @@ import { FlatList, StyleSheet, View, ActivityIndicator } from 'react-native';
 import { MessageItem } from './MessageItem';
 import { DateSeparator } from './DateSeparator';
 import type { MessageWithSender } from '../../types/chat.types';
+import type { UploadedAttachment } from '../../types/attachment.types';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
 import {
@@ -19,6 +20,8 @@ interface MessageListProps {
     hasMore: boolean;
     onAvatarPress?: (userId: string) => void;
     onMessageLongPress?: (message: MessageWithSender) => void;
+    onImagePress?: (imageUrl: string) => void;
+    onFilePress?: (attachment: UploadedAttachment) => void;
 }
 
 export const MessageList: React.FC<MessageListProps> = ({
@@ -29,6 +32,8 @@ export const MessageList: React.FC<MessageListProps> = ({
     hasMore,
     onAvatarPress,
     onMessageLongPress,
+    onImagePress,
+    onFilePress,
 }) => {
     const flatListRef = useRef<FlatList>(null);
 
@@ -59,6 +64,8 @@ export const MessageList: React.FC<MessageListProps> = ({
                     isLastInGroup={isLastInGroup}
                     onAvatarPress={() => onAvatarPress?.(item.sender_id)}
                     onLongPress={() => onMessageLongPress?.(item)}
+                    onImagePress={onImagePress}
+                    onFilePress={onFilePress}
                 />
             </>
         );

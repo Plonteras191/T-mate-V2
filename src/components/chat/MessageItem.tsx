@@ -3,6 +3,7 @@ import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { ChatBubble } from './ChatBubble';
 import type { MessageWithSender } from '../../types/chat.types';
+import type { UploadedAttachment } from '../../types/attachment.types';
 import { spacing } from '../../theme/spacing';
 
 interface MessageItemProps {
@@ -12,6 +13,8 @@ interface MessageItemProps {
     isLastInGroup: boolean;
     onAvatarPress?: () => void;
     onLongPress?: () => void;
+    onImagePress?: (imageUrl: string) => void;
+    onFilePress?: (attachment: UploadedAttachment) => void;
 }
 
 export const MessageItem: React.FC<MessageItemProps> = ({
@@ -21,6 +24,8 @@ export const MessageItem: React.FC<MessageItemProps> = ({
     isLastInGroup,
     onAvatarPress,
     onLongPress,
+    onImagePress,
+    onFilePress,
 }) => {
     return (
         <View style={[styles.container, !isLastInGroup && styles.grouped]}>
@@ -31,6 +36,8 @@ export const MessageItem: React.FC<MessageItemProps> = ({
                 showName={isFirstInGroup && !isOwnMessage}
                 onAvatarPress={onAvatarPress}
                 onLongPress={onLongPress}
+                onImagePress={onImagePress}
+                onFilePress={onFilePress}
             />
         </View>
     );

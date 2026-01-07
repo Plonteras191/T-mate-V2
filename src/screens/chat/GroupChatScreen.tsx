@@ -11,11 +11,15 @@ import { useRoute, useNavigation } from '@react-navigation/native';
 import { ChatHeader } from '../../components/chat/ChatHeader';
 import { MessageList } from '../../components/chat/MessageList';
 import { ChatInput } from '../../components/chat/ChatInput';
+import { AttachmentPicker } from '../../components/chat/AttachmentPicker';
 import { LoadingSpinner, EmptyState } from '../../components/common';
 import { useChat } from '../../hooks/useChat';
 import { useAuth } from '../../hooks/useAuth';
 import { useGroupDetails } from '../../hooks/useGroupDetails';
+import { useAttachments, useImagePicker, useFilePicker } from '../../hooks';
+import { sendMessageWithAttachments } from '../../services/chat.service';
 import type { GroupsScreenProps } from '../../types/navigation.types';
+import type { UploadedAttachment } from '../../types/attachment.types';
 import { colors } from '../../theme/colors';
 import { spacing } from '../../theme/spacing';
 
@@ -38,22 +42,68 @@ export const GroupChatScreen: React.FC = () => {
 
     const [inputText, setInputText] = useState('');
     const [sending, setSending] = useState(false);
+    const [showAttachmentPicker, setShowAttachmentPicker] = useState(false);
+
+    // Attachment hooks
+    const attachments = useAttachments();
+    const imagePicker = useImagePicker();
+    const filePicker = useFilePicker();
+
+    // Handle attachment selection
+    const handleImageSelect = async () => {
+        const result = await imagePicker.pickImage();
+        if (!result.cancelled && result.images) {
+            result.images.forEach(img => attachments.addImage(img));
+        }
+    };
+
+    const handleCameraSelect = async () => {
+        const result = await imagePicker.takePhoto();
+        if (!result.cancelled && result.images) {
+            result.images.forEach(img => attachments.addImage(img));
+        }
+    };
+
+    const handleFileSelect = async () => {
+        const result = await filePicker.pickFile();
+        if (!result.cancelled && result.file) {
+            attachments.addFile(result.file);
+        }
+    };
 
     const handleSend = async () => {
-        if (!inputText.trim() || sending) return;
+        if (!inputText.trim() && attachments.pendingAttachments.length === 0) return;
+        if (sending) return;
 
         const text = inputText.trim();
         setInputText(''); // Clear immediately for UX
         setSending(true);
 
         try {
-            const success = await sendMessage(text);
-            if (!success) {
-                // Restore text on failure
-                setInputText(text);
+            if (attachments.pendingAttachments.length > 0) {
+                // Upload attachments first
+                const uploaded = await attachments.uploadAll(groupId);
+
+                // Send message with attachments
+                const messageType = uploaded.some(a => a.attachment_type === 'image') ? 'image' : 'file';
+                await sendMessageWithAttachments(
+                    groupId,
+                    text || null,
+                    messageType,
+                    uploaded
+                );
+
+                attachments.clearAttachments();
+            } else {
+                // Send text-only message
+                const success = await sendMessage(text);
+                if (!success) {
+                    // Restore text on failure
+                    setInputText(text);
+                }
             }
         } catch (error) {
-            console.error('Error sending message:', error);
+            console.error('Error sending:', error);
             setInputText(text);
         } finally {
             setSending(false);
@@ -70,6 +120,15 @@ export const GroupChatScreen: React.FC = () => {
 
     const handleInfoPress = () => {
         navigation.navigate('GroupDetails', { groupId });
+    };
+
+    const handleImagePress = (imageUrl: string) => {
+        navigation.navigate('ImageViewer', { imageUrl });
+    };
+
+    const handleFilePress = (attachment: UploadedAttachment) => {
+        // Handle file download/open
+        console.log('Download file:', attachment);
     };
 
     if (loading) {
@@ -106,6 +165,8 @@ export const GroupChatScreen: React.FC = () => {
                         loadingMore={loadingMore}
                         hasMore={hasMore}
                         onAvatarPress={handleAvatarPress}
+                        onImagePress={handleImagePress}
+                        onFilePress={handleFilePress}
                     />
                 )}
 
@@ -114,10 +175,21 @@ export const GroupChatScreen: React.FC = () => {
                         value={inputText}
                         onChangeText={setInputText}
                         onSend={handleSend}
+                        onAttachmentPress={() => setShowAttachmentPicker(true)}
                         sending={sending}
                         placeholder="Type a message..."
+                        pendingAttachments={attachments.pendingAttachments}
+                        onRemoveAttachment={attachments.removeAttachment}
                     />
                 </View>
+
+                <AttachmentPicker
+                    visible={showAttachmentPicker}
+                    onImageSelect={handleImageSelect}
+                    onCameraSelect={handleCameraSelect}
+                    onFileSelect={handleFileSelect}
+                    onClose={() => setShowAttachmentPicker(false)}
+                />
             </KeyboardAvoidingView>
         </SafeAreaView>
     );

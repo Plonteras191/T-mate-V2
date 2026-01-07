@@ -3,10 +3,14 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Avatar } from '../common/Avatar';
 import type { MessageWithSender } from '../../types/chat.types';
+import type { UploadedAttachment } from '../../types/attachment.types';
+import { ImageAttachment } from './ImageAttachment';
+import { FileAttachment } from './FileAttachment';
 import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
 import { spacing } from '../../theme/spacing';
 import { formatMessageTime } from '../../utils/chatUtils';
+import { isImageType } from '../../utils/fileUtils';
 
 interface ChatBubbleProps {
     message: MessageWithSender;
@@ -15,6 +19,8 @@ interface ChatBubbleProps {
     showName?: boolean;
     onAvatarPress?: () => void;
     onLongPress?: () => void;
+    onImagePress?: (imageUrl: string) => void;
+    onFilePress?: (attachment: any) => void;
 }
 
 export const ChatBubble: React.FC<ChatBubbleProps> = ({
@@ -24,6 +30,8 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
     showName = true,
     onAvatarPress,
     onLongPress,
+    onImagePress,
+    onFilePress,
 }) => {
     const bubbleStyle = isOwnMessage ? styles.bubbleSent : styles.bubbleReceived;
     const textStyle = isOwnMessage ? styles.textSent : styles.textReceived;
@@ -53,9 +61,36 @@ export const ChatBubble: React.FC<ChatBubbleProps> = ({
                     activeOpacity={0.8}
                     style={[styles.bubble, bubbleStyle]}
                 >
-                    <Text style={[styles.messageText, textStyle]}>
-                        {message.message_text}
-                    </Text>
+                    {/* Attachments */}
+                    {message.attachments && message.attachments.length > 0 && (
+                        <View style={{ marginBottom: message.message_text ? 8 : 0 }}>
+                            {message.attachments.map((attachment: UploadedAttachment, index: number) => {
+                                if (attachment.attachment_type === 'image') {
+                                    return (
+                                        <ImageAttachment
+                                            key={attachment.id || index}
+                                            attachment={attachment}
+                                            onPress={() => onImagePress?.(attachment.file_url)}
+                                        />
+                                    );
+                                } else {
+                                    return (
+                                        <FileAttachment
+                                            key={attachment.id || index}
+                                            attachment={attachment}
+                                            onPress={() => onFilePress?.(attachment)}
+                                        />
+                                    );
+                                }
+                            })}
+                        </View>
+                    )}
+
+                    {message.message_text && (
+                        <Text style={[styles.messageText, textStyle]}>
+                            {message.message_text}
+                        </Text>
+                    )}
                 </TouchableOpacity>
 
                 {/* Timestamp */}

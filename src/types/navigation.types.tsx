@@ -36,6 +36,7 @@ export type GroupsStackParamList = {
     GroupMembers: { groupId: string; isCreator: boolean };
     GroupChat: { groupId: string; groupName: string };
     ViewUserProfile: { userId: string };
+    ImageViewer: { imageUrl: string; senderName?: string };
 };
 
 // Profile Stack
