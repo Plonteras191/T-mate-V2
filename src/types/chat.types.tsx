@@ -4,13 +4,34 @@ import type { User } from './database.types';
 // Message type enum
 export type MessageType = 'text' | 'image' | 'file' | 'system';
 
+// Text range for formatting
+export interface TextRange {
+    start: number;
+    end: number;
+}
+
+// Mention data
+export interface MentionData {
+    userId: string;
+    username: string;
+    start: number;
+    end: number;
+}
+
+// Link data
+export interface LinkData {
+    url: string;
+    start: number;
+    end: number;
+}
+
 // Message formatting options
 export interface MessageFormatting {
-    bold?: { start: number; end: number }[];
-    italic?: { start: number; end: number }[];
-    strikethrough?: { start: number; end: number }[];
-    mentions?: { userId: string; username: string; start: number; end: number }[];
-    links?: { url: string; start: number; end: number }[];
+    bold?: TextRange[];
+    italic?: TextRange[];
+    strikethrough?: TextRange[];
+    mentions?: MentionData[];
+    links?: LinkData[];
 }
 
 // Base message interface
@@ -34,7 +55,7 @@ export interface UserProfile {
 // Message with sender profile info
 export interface MessageWithSender extends Message {
     sender: UserProfile;
-    attachments?: MessageAttachment[];
+    attachments: any[]; // Will be UploadedAttachment[] from attachment.types
 }
 
 // Grouped messages by date
@@ -43,26 +64,21 @@ export interface GroupedMessages {
     messages: MessageWithSender[];
 }
 
-// Message attachment interface
-export interface MessageAttachment {
-    id: string;
-    message_id: string;
-    attachment_type: AttachmentType;
-    file_url: string;
-    file_name: string;
-    file_size: number;
-    thumbnail_url: string | null;
-    created_at: string;
-}
-
-export type AttachmentType = 'image' | 'pdf' | 'doc' | 'docx' | 'ppt' | 'pptx' | 'xls' | 'xlsx' | 'txt';
-
 // Input types
 export interface SendMessageInput {
     group_id: string;
     message_text: string;
     message_type?: MessageType;
     formatting?: MessageFormatting;
+}
+
+// Send message with attachments
+export interface SendMessageWithAttachmentsInput {
+    group_id: string;
+    message_text?: string;
+    message_type: 'text' | 'image' | 'file';
+    formatting?: MessageFormatting;
+    attachments?: any[]; // Will be PendingAttachment[] from attachment.types
 }
 
 // Chat state interface

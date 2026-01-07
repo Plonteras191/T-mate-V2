@@ -173,6 +173,7 @@ export const generateOptimisticMessage = (
         formatting: null,
         created_at: new Date().toISOString(),
         sender,
+        attachments: [],
     };
 };
 
