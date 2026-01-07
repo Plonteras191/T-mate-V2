@@ -5,3 +5,6 @@ export { useGroups } from './useGroups';
 export { useMyGroups } from './useMyGroups';
 export { useGroupDetails } from './useGroupDetails';
 export { useSearch } from './useSearch';
+export { useChat } from './useChat';
+export { useMessages } from './useMessages';
+export { useRealtimeMessages } from './useRealtimeMessages';

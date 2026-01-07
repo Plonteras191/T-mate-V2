@@ -103,6 +103,21 @@ export const GroupDetailsScreen: React.FC = () => {
 
                     <Divider style={styles.divider} />
 
+                    {/* Open Chat Button */}
+                    {isMember && (
+                        <View style={styles.chatSection}>
+                            <Button
+                                title="💬 Open Chat"
+                                onPress={() => navigation.navigate('GroupChat', {
+                                    groupId,
+                                    groupName: group.subject
+                                })}
+                                variant="primary"
+                                fullWidth
+                            />
+                        </View>
+                    )}
+
                     {/* Members Section */}
                     <View style={styles.membersSection}>
                         <Button
@@ -180,6 +195,9 @@ const styles = StyleSheet.create({
     },
     divider: {
         marginHorizontal: spacing[4],
+    },
+    chatSection: {
+        padding: spacing[4],
     },
     membersSection: {
         padding: spacing[4],

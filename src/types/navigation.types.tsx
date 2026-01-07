@@ -34,6 +34,7 @@ export type GroupsStackParamList = {
     EditGroup: { groupId: string };
     GroupDetails: { groupId: string };
     GroupMembers: { groupId: string; isCreator: boolean };
+    GroupChat: { groupId: string; groupName: string };
     ViewUserProfile: { userId: string };
 };
 
