@@ -8,10 +8,12 @@ import {
     TouchableOpacity,
     Alert,
     Platform,
+    KeyboardAvoidingView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { Feather } from '@expo/vector-icons';
 import { Button, Input, IconButton } from '../../components/common';
 import * as groupsService from '../../services/groups.service';
 import { colors } from '../../theme/colors';
@@ -72,7 +74,10 @@ export const CreateGroupScreen: React.FC = () => {
             Alert.alert('Success', 'Study group created!', [
                 {
                     text: 'OK',
-                    onPress: () => navigation.navigate('GroupDetails', { groupId: result.data!.id }),
+                    onPress: () => navigation.replace('Groups', {
+                        screen: 'GroupDetails',
+                        params: { groupId: result.data!.id }
+                    }),
                 },
             ]);
         } else {
@@ -106,105 +111,117 @@ export const CreateGroupScreen: React.FC = () => {
             <View style={styles.container}>
                 {/* Header */}
                 <View style={styles.header}>
-                    <TouchableOpacity onPress={() => navigation.goBack()}>
-                        <Text style={styles.backButton}>← Back</Text>
-                    </TouchableOpacity>
+                    <IconButton
+                        icon="arrow-left"
+                        onPress={() => navigation.goBack()}
+                        variant="ghost"
+                    />
                     <Text style={styles.title}>Create Group</Text>
-                    <View style={styles.headerSpacer} />
+                    <View style={{ width: 44 }} />
                 </View>
 
-                <ScrollView
-                    style={styles.form}
-                    contentContainerStyle={styles.formContent}
-                    showsVerticalScrollIndicator={false}
+                <KeyboardAvoidingView
+                    behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+                    style={{ flex: 1 }}
                 >
-                    <Input
-                        label="Subject *"
-                        placeholder="e.g., Calculus 101"
-                        value={subject}
-                        onChangeText={setSubject}
-                        error={errors.subject}
-                    />
+                    <ScrollView
+                        style={styles.form}
+                        contentContainerStyle={styles.formContent}
+                        showsVerticalScrollIndicator={false}
+                    >
+                        <Input
+                            label="Subject *"
+                            placeholder="e.g., Calculus 101"
+                            value={subject}
+                            onChangeText={setSubject}
+                            error={errors.subject}
+                        />
 
-                    <Input
-                        label="Description *"
-                        placeholder="What will you study? What should members expect?"
-                        value={description}
-                        onChangeText={setDescription}
-                        error={errors.description}
-                        multiline
-                        numberOfLines={4}
-                    />
+                        <Input
+                            label="Description *"
+                            placeholder="What will you study? What should members expect?"
+                            value={description}
+                            onChangeText={setDescription}
+                            error={errors.description}
+                            multiline
+                            numberOfLines={4}
+                            textAlignVertical="top"
+                        />
 
-                    <View style={styles.dateTimeContainer}>
-                        <Text style={styles.label}>Meeting Date & Time *</Text>
-                        <View style={styles.dateTimeRow}>
-                            <TouchableOpacity
-                                style={styles.dateButton}
-                                onPress={() => setShowDatePicker(true)}
-                            >
-                                <Text style={styles.dateButtonText}>
-                                    📅 {meetingDate.toLocaleDateString()}
-                                </Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity
-                                style={styles.dateButton}
-                                onPress={() => setShowTimePicker(true)}
-                            >
-                                <Text style={styles.dateButtonText}>
-                                    🕐 {meetingDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                </Text>
-                            </TouchableOpacity>
+                        <View style={styles.dateTimeContainer}>
+                            <Text style={styles.label}>Meeting Date & Time *</Text>
+                            <View style={styles.dateTimeRow}>
+                                <TouchableOpacity
+                                    style={styles.dateButton}
+                                    onPress={() => setShowDatePicker(true)}
+                                >
+                                    <Feather name="calendar" size={18} color={colors.primary.main} />
+                                    <Text style={styles.dateButtonText}>
+                                        {meetingDate.toLocaleDateString()}
+                                    </Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity
+                                    style={styles.dateButton}
+                                    onPress={() => setShowTimePicker(true)}
+                                >
+                                    <Feather name="clock" size={18} color={colors.primary.main} />
+                                    <Text style={styles.dateButtonText}>
+                                        {meetingDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
+                            {errors.meetingDate && (
+                                <Text style={styles.errorText}>{errors.meetingDate}</Text>
+                            )}
                         </View>
-                        {errors.meetingDate && (
-                            <Text style={styles.errorText}>{errors.meetingDate}</Text>
+
+                        {showDatePicker && (
+                            <DateTimePicker
+                                value={meetingDate}
+                                mode="date"
+                                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                                onChange={handleDateChange}
+                                minimumDate={new Date()}
+                            />
                         )}
+
+                        {showTimePicker && (
+                            <DateTimePicker
+                                value={meetingDate}
+                                mode="time"
+                                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                                onChange={handleTimeChange}
+                            />
+                        )}
+
+                        <Input
+                            label="Meeting Location *"
+                            placeholder="e.g., Library Room 203"
+                            value={meetingLocation}
+                            onChangeText={setMeetingLocation}
+                            error={errors.meetingLocation}
+                        />
+
+                        <Input
+                            label="Max Capacity (optional)"
+                            placeholder="Leave empty for unlimited"
+                            value={maxCapacity}
+                            onChangeText={setMaxCapacity}
+                            error={errors.maxCapacity}
+                            keyboardType="number-pad"
+                        />
+                    </ScrollView>
+
+                    <View style={styles.footer}>
+                        <Button
+                            title="Create Group"
+                            onPress={handleCreate}
+                            loading={loading}
+                            fullWidth
+                            style={styles.createButton}
+                        />
                     </View>
-
-                    {showDatePicker && (
-                        <DateTimePicker
-                            value={meetingDate}
-                            mode="date"
-                            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                            onChange={handleDateChange}
-                            minimumDate={new Date()}
-                        />
-                    )}
-
-                    {showTimePicker && (
-                        <DateTimePicker
-                            value={meetingDate}
-                            mode="time"
-                            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                            onChange={handleTimeChange}
-                        />
-                    )}
-
-                    <Input
-                        label="Meeting Location *"
-                        placeholder="e.g., Library Room 203"
-                        value={meetingLocation}
-                        onChangeText={setMeetingLocation}
-                        error={errors.meetingLocation}
-                    />
-
-                    <Input
-                        label="Max Capacity (optional)"
-                        placeholder="Leave empty for unlimited"
-                        value={maxCapacity}
-                        onChangeText={setMaxCapacity}
-                        error={errors.maxCapacity}
-                        keyboardType="number-pad"
-                    />
-
-                    <Button
-                        title="Create Group"
-                        onPress={handleCreate}
-                        loading={loading}
-                        fullWidth
-                        style={styles.createButton}
-                    />
-                </ScrollView>
+                </KeyboardAvoidingView>
             </View>
         </SafeAreaView>
     );
@@ -222,29 +239,22 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingHorizontal: spacing[4],
-        paddingVertical: spacing[3],
+        paddingHorizontal: spacing[2],
+        paddingVertical: spacing[2],
         borderBottomWidth: 1,
         borderBottomColor: colors.border.light,
-    },
-    backButton: {
-        ...typography.body,
-        color: colors.primary.main,
-        fontWeight: '500',
     },
     title: {
         ...typography.h3,
         color: colors.text.primary,
-    },
-    headerSpacer: {
-        width: 60,
     },
     form: {
         flex: 1,
     },
     formContent: {
         padding: spacing[4],
-        paddingBottom: spacing[8],
+        paddingBottom: spacing[4],
+        gap: spacing[4],
     },
     label: {
         ...typography.label,
@@ -252,7 +262,7 @@ const styles = StyleSheet.create({
         marginBottom: spacing[2],
     },
     dateTimeContainer: {
-        marginBottom: spacing[4],
+        // marginBottom inherited from gap
     },
     dateTimeRow: {
         flexDirection: 'row',
@@ -260,11 +270,15 @@ const styles = StyleSheet.create({
     },
     dateButton: {
         flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
         backgroundColor: colors.background.tertiary,
         paddingVertical: spacing[3],
         paddingHorizontal: spacing[4],
         borderRadius: 12,
-        alignItems: 'center',
+        gap: spacing[2],
+        borderWidth: 1,
+        borderColor: colors.border.light,
     },
     dateButtonText: {
         ...typography.body,
@@ -275,7 +289,13 @@ const styles = StyleSheet.create({
         color: colors.danger.main,
         marginTop: spacing[1],
     },
+    footer: {
+        padding: spacing[4],
+        borderTopWidth: 1,
+        borderTopColor: colors.border.light,
+        backgroundColor: colors.background.primary,
+    },
     createButton: {
-        marginTop: spacing[6],
+        marginTop: 0,
     },
 });

@@ -8,11 +8,13 @@ import {
     TouchableOpacity,
     Alert,
     Platform,
+    KeyboardAvoidingView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { Button, Input, LoadingSpinner } from '../../components/common';
+import { Feather } from '@expo/vector-icons';
+import { Button, Input, LoadingSpinner, IconButton } from '../../components/common';
 import * as groupsService from '../../services/groups.service';
 import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
@@ -117,88 +119,100 @@ export const EditGroupScreen: React.FC = () => {
         <SafeAreaView style={styles.safeArea} edges={['top']}>
             <View style={styles.container}>
                 <View style={styles.header}>
-                    <TouchableOpacity onPress={() => navigation.goBack()}>
-                        <Text style={styles.backButton}>← Back</Text>
-                    </TouchableOpacity>
+                    <IconButton
+                        icon="arrow-left"
+                        onPress={() => navigation.goBack()}
+                        variant="ghost"
+                    />
                     <Text style={styles.title}>Edit Group</Text>
-                    <View style={styles.headerSpacer} />
+                    <View style={{ width: 44 }} />
                 </View>
 
-                <ScrollView style={styles.form} contentContainerStyle={styles.formContent}>
-                    <Input
-                        label="Subject *"
-                        value={subject}
-                        onChangeText={setSubject}
-                        error={errors.subject}
-                    />
+                <KeyboardAvoidingView
+                    behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+                    style={{ flex: 1 }}
+                >
+                    <ScrollView style={styles.form} contentContainerStyle={styles.formContent}>
+                        <Input
+                            label="Subject *"
+                            value={subject}
+                            onChangeText={setSubject}
+                            error={errors.subject}
+                        />
 
-                    <Input
-                        label="Description *"
-                        value={description}
-                        onChangeText={setDescription}
-                        error={errors.description}
-                        multiline
-                        numberOfLines={4}
-                    />
+                        <Input
+                            label="Description *"
+                            value={description}
+                            onChangeText={setDescription}
+                            error={errors.description}
+                            multiline
+                            numberOfLines={4}
+                            textAlignVertical="top"
+                        />
 
-                    <View style={styles.dateTimeContainer}>
-                        <Text style={styles.label}>Meeting Date & Time</Text>
-                        <View style={styles.dateTimeRow}>
-                            <TouchableOpacity style={styles.dateButton} onPress={() => setShowDatePicker(true)}>
-                                <Text style={styles.dateButtonText}>📅 {meetingDate.toLocaleDateString()}</Text>
-                            </TouchableOpacity>
-                            <TouchableOpacity style={styles.dateButton} onPress={() => setShowTimePicker(true)}>
-                                <Text style={styles.dateButtonText}>
-                                    🕐 {meetingDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                </Text>
-                            </TouchableOpacity>
+                        <View style={styles.dateTimeContainer}>
+                            <Text style={styles.label}>Meeting Date & Time</Text>
+                            <View style={styles.dateTimeRow}>
+                                <TouchableOpacity style={styles.dateButton} onPress={() => setShowDatePicker(true)}>
+                                    <Feather name="calendar" size={18} color={colors.primary.main} />
+                                    <Text style={styles.dateButtonText}>{meetingDate.toLocaleDateString()}</Text>
+                                </TouchableOpacity>
+                                <TouchableOpacity style={styles.dateButton} onPress={() => setShowTimePicker(true)}>
+                                    <Feather name="clock" size={18} color={colors.primary.main} />
+                                    <Text style={styles.dateButtonText}>
+                                        {meetingDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                    </Text>
+                                </TouchableOpacity>
+                            </View>
                         </View>
+
+                        {showDatePicker && (
+                            <DateTimePicker
+                                value={meetingDate}
+                                mode="date"
+                                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                                onChange={(e, d) => { setShowDatePicker(false); if (d) setMeetingDate(d); }}
+                            />
+                        )}
+
+                        {showTimePicker && (
+                            <DateTimePicker
+                                value={meetingDate}
+                                mode="time"
+                                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                                onChange={(e, t) => { setShowTimePicker(false); if (t) setMeetingDate(t); }}
+                            />
+                        )}
+
+                        <Input
+                            label="Meeting Location *"
+                            value={meetingLocation}
+                            onChangeText={setMeetingLocation}
+                            error={errors.meetingLocation}
+                        />
+
+                        <Input
+                            label="Max Capacity"
+                            value={maxCapacity}
+                            onChangeText={setMaxCapacity}
+                            error={errors.maxCapacity}
+                            keyboardType="number-pad"
+                        />
+                    </ScrollView>
+
+                    <View style={styles.footer}>
+                        <Button title="Save Changes" onPress={handleSave} loading={saving} fullWidth style={styles.saveButton} />
+
+                        <Button
+                            title="Delete Group"
+                            onPress={handleDelete}
+                            loading={deleting}
+                            variant="danger"
+                            fullWidth
+                            style={styles.deleteButton}
+                        />
                     </View>
-
-                    {showDatePicker && (
-                        <DateTimePicker
-                            value={meetingDate}
-                            mode="date"
-                            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                            onChange={(e, d) => { setShowDatePicker(false); if (d) setMeetingDate(d); }}
-                        />
-                    )}
-
-                    {showTimePicker && (
-                        <DateTimePicker
-                            value={meetingDate}
-                            mode="time"
-                            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                            onChange={(e, t) => { setShowTimePicker(false); if (t) setMeetingDate(t); }}
-                        />
-                    )}
-
-                    <Input
-                        label="Meeting Location *"
-                        value={meetingLocation}
-                        onChangeText={setMeetingLocation}
-                        error={errors.meetingLocation}
-                    />
-
-                    <Input
-                        label="Max Capacity"
-                        value={maxCapacity}
-                        onChangeText={setMaxCapacity}
-                        error={errors.maxCapacity}
-                        keyboardType="number-pad"
-                    />
-
-                    <Button title="Save Changes" onPress={handleSave} loading={saving} fullWidth style={styles.saveButton} />
-
-                    <Button
-                        title="Delete Group"
-                        onPress={handleDelete}
-                        loading={deleting}
-                        variant="danger"
-                        fullWidth
-                        style={styles.deleteButton}
-                    />
-                </ScrollView>
+                </KeyboardAvoidingView>
             </View>
         </SafeAreaView>
     );
@@ -211,28 +225,36 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingHorizontal: spacing[4],
-        paddingVertical: spacing[3],
+        paddingHorizontal: spacing[2],
+        paddingVertical: spacing[2],
         borderBottomWidth: 1,
         borderBottomColor: colors.border.light,
     },
-    backButton: { ...typography.body, color: colors.primary.main, fontWeight: '500' },
     title: { ...typography.h3, color: colors.text.primary },
-    headerSpacer: { width: 60 },
     form: { flex: 1 },
-    formContent: { padding: spacing[4], paddingBottom: spacing[8] },
+    formContent: { padding: spacing[4], paddingBottom: spacing[4], gap: spacing[4] },
     label: { ...typography.label, color: colors.text.primary, marginBottom: spacing[2] },
-    dateTimeContainer: { marginBottom: spacing[4] },
+    dateTimeContainer: { marginBottom: 0 },
     dateTimeRow: { flexDirection: 'row', gap: spacing[3] },
     dateButton: {
         flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
         backgroundColor: colors.background.tertiary,
         paddingVertical: spacing[3],
         paddingHorizontal: spacing[4],
         borderRadius: 12,
-        alignItems: 'center',
+        gap: spacing[2],
+        borderWidth: 1,
+        borderColor: colors.border.light,
     },
     dateButtonText: { ...typography.body, color: colors.text.primary },
-    saveButton: { marginTop: spacing[6] },
+    footer: {
+        padding: spacing[4],
+        borderTopWidth: 1,
+        borderTopColor: colors.border.light,
+        backgroundColor: colors.background.primary,
+    },
+    saveButton: { marginTop: 0 },
     deleteButton: { marginTop: spacing[3] },
 });

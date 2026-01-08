@@ -131,21 +131,22 @@ const styles = StyleSheet.create({
         marginLeft: spacing[2],
     },
     bubble: {
-        paddingHorizontal: 12,
-        paddingVertical: 8,
-        borderRadius: 16,
+        paddingHorizontal: 14,
+        paddingVertical: 10,
+        borderRadius: 18,
     },
     bubbleSent: {
         backgroundColor: colors.primary.main,
         borderBottomRightRadius: 4,
     },
     bubbleReceived: {
-        backgroundColor: colors.background.tertiary,
+        backgroundColor: colors.background.secondary,
         borderBottomLeftRadius: 4,
     },
     messageText: {
         ...typography.body,
-        lineHeight: 20,
+        lineHeight: 22,
+        fontSize: 15,
     },
     textSent: {
         color: colors.text.inverse,

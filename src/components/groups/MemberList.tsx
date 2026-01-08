@@ -54,9 +54,9 @@ export const MemberList: React.FC<MemberListProps> = ({
 
     const renderEmpty = () => (
         <EmptyState
-            icon="👥"
-            title="No members yet"
-            description="Be the first to join this group!"
+            icon="users"
+            title="No Members Yet"
+            description="This group doesn't have any members yet."
         />
     );
 

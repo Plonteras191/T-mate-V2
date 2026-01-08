@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { Button, Input } from '../../components/common';
+import { Button, Input, IconButton } from '../../components/common';
 import { useAuth } from '../../hooks/useAuth';
 import { isValidEmail, getEmailError } from '../../utils/validation';
 import { colors } from '../../theme/colors';
@@ -114,9 +114,12 @@ export const ForgotPasswordScreen: React.FC = () => {
                     showsVerticalScrollIndicator={false}
                 >
                     {/* Back Button */}
-                    <TouchableOpacity onPress={handleBack} style={styles.backButton}>
-                        <Text style={styles.backButtonText}>← Back</Text>
-                    </TouchableOpacity>
+                    <IconButton
+                        icon="arrow-left"
+                        onPress={handleBack}
+                        variant="ghost"
+                        style={styles.backButton}
+                    />
 
                     {/* Header */}
                     <View style={styles.header}>

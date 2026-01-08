@@ -54,7 +54,7 @@ export const GroupMembersScreen: React.FC = () => {
                 {/* Header */}
                 <View style={styles.header}>
                     <IconButton
-                        icon="←"
+                        icon="arrow-left"
                         onPress={() => navigation.goBack()}
                         variant="ghost"
                     />

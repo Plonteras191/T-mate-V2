@@ -1,6 +1,6 @@
 // MyGroupsScreen
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, FlatList, RefreshControl } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, FlatList, RefreshControl, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { EmptyState, LoadingSpinner } from '../../components/common';
@@ -52,23 +52,25 @@ export const MyGroupsScreen: React.FC = () => {
                 </View>
 
                 {/* Tab Toggle */}
-                <View style={styles.tabContainer}>
-                    <TouchableOpacity
-                        style={[styles.tab, activeTab === 'joined' && styles.tabActive]}
-                        onPress={() => setActiveTab('joined')}
-                    >
-                        <Text style={[styles.tabText, activeTab === 'joined' && styles.tabTextActive]}>
-                            Joined ({joinedGroups.length})
-                        </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={[styles.tab, activeTab === 'created' && styles.tabActive]}
-                        onPress={() => setActiveTab('created')}
-                    >
-                        <Text style={[styles.tabText, activeTab === 'created' && styles.tabTextActive]}>
-                            Created ({createdGroups.length})
-                        </Text>
-                    </TouchableOpacity>
+                <View style={styles.tabWrapper}>
+                    <View style={styles.tabContainer}>
+                        <TouchableOpacity
+                            style={[styles.tab, activeTab === 'joined' && styles.tabActive]}
+                            onPress={() => setActiveTab('joined')}
+                        >
+                            <Text style={[styles.tabText, activeTab === 'joined' && styles.tabTextActive]}>
+                                Joined ({joinedGroups.length})
+                            </Text>
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                            style={[styles.tab, activeTab === 'created' && styles.tabActive]}
+                            onPress={() => setActiveTab('created')}
+                        >
+                            <Text style={[styles.tabText, activeTab === 'created' && styles.tabTextActive]}>
+                                Created ({createdGroups.length})
+                            </Text>
+                        </TouchableOpacity>
+                    </View>
                 </View>
 
                 {/* Groups List */}
@@ -88,7 +90,7 @@ export const MyGroupsScreen: React.FC = () => {
                     ]}
                     ListEmptyComponent={
                         <EmptyState
-                            icon={activeTab === 'joined' ? '📚' : '✨'}
+                            icon={activeTab === 'joined' ? 'book-open' : 'plus-square'}
                             title={activeTab === 'joined' ? 'No groups joined' : 'No groups created'}
                             description={
                                 activeTab === 'joined'
@@ -133,13 +135,15 @@ const styles = StyleSheet.create({
         ...typography.h2,
         color: colors.text.primary,
     },
+    tabWrapper: {
+        paddingHorizontal: spacing[4],
+        marginBottom: spacing[3],
+    },
     tabContainer: {
         flexDirection: 'row',
-        marginHorizontal: spacing[4],
-        marginBottom: spacing[3],
         backgroundColor: colors.background.tertiary,
         borderRadius: borderRadius.lg,
-        padding: spacing[1],
+        padding: 4,
     },
     tab: {
         flex: 1,
@@ -149,14 +153,26 @@ const styles = StyleSheet.create({
     },
     tabActive: {
         backgroundColor: colors.surface.primary,
+        ...Platform.select({
+            ios: {
+                shadowColor: colors.text.primary,
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.1,
+                shadowRadius: 4,
+            },
+            android: {
+                elevation: 2,
+            },
+        }),
     },
     tabText: {
-        ...typography.body,
+        ...typography.bodySmall,
         color: colors.text.secondary,
         fontWeight: '500',
     },
     tabTextActive: {
-        color: colors.primary.main,
+        color: colors.text.primary,
+        fontWeight: '600',
     },
     listContent: {
         padding: spacing[4],

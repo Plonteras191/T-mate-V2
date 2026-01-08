@@ -36,26 +36,31 @@ export const GroupCard: React.FC<GroupCardProps> = ({
                     <Text style={styles.subject} numberOfLines={1}>
                         {group.subject}
                     </Text>
-                    <Badge
-                        label={group.is_full ? 'Full' : 'Open'}
-                        variant={group.is_full ? 'danger' : 'success'}
-                        size="small"
-                    />
+                    {group.is_full ? (
+                        <Badge label="Full" variant="danger" size="small" />
+                    ) : (
+                        <View style={styles.openBadge}>
+                            <View style={styles.openIndicator} />
+                            <Text style={styles.openText}>Open</Text>
+                        </View>
+                    )}
                 </View>
                 <Text style={styles.description} numberOfLines={2}>
                     {truncateText(group.description, 100)}
                 </Text>
             </View>
 
+            <View style={styles.divider} />
+
             <View style={styles.details}>
                 <View style={styles.detailRow}>
-                    <Feather name="calendar" size={14} color={colors.text.secondary} />
+                    <Feather name="calendar" size={14} color={colors.primary.main} />
                     <Text style={styles.detailText}>
                         {formatDateTime(group.meeting_schedule)}
                     </Text>
                 </View>
                 <View style={styles.detailRow}>
-                    <Feather name="map-pin" size={14} color={colors.text.secondary} />
+                    <Feather name="map-pin" size={14} color={colors.primary.main} />
                     <Text style={styles.detailText} numberOfLines={1}>
                         {group.meeting_location}
                     </Text>
@@ -75,7 +80,7 @@ export const GroupCard: React.FC<GroupCardProps> = ({
                 </View>
 
                 <View style={styles.memberInfo}>
-                    <Feather name="users" size={14} color={colors.text.tertiary} style={{ marginRight: 4 }} />
+                    <Feather name="users" size={12} color={colors.text.secondary} style={{ marginRight: 4 }} />
                     <Text style={styles.memberCount}>
                         {formatMemberCount(group.member_count, group.max_capacity)}
                     </Text>
@@ -96,8 +101,8 @@ export const GroupCard: React.FC<GroupCardProps> = ({
 
             {isMember && (
                 <View style={styles.memberBadge}>
-                    <Feather name="check" size={14} color={colors.success.main} style={{ marginRight: 4 }} />
-                    <Text style={styles.memberBadgeText}>Joined</Text>
+                    <Feather name="check-circle" size={16} color={colors.success.main} style={{ marginRight: 6 }} />
+                    <Text style={styles.memberBadgeText}>Member</Text>
                 </View>
             )}
         </Card>
@@ -107,7 +112,10 @@ export const GroupCard: React.FC<GroupCardProps> = ({
 const styles = StyleSheet.create({
     card: {
         marginBottom: spacing[3],
-        borderRadius: borderRadius.lg,
+        borderRadius: borderRadius.xl,
+        borderWidth: 1,
+        borderColor: colors.border.light,
+        padding: spacing[4],
     },
     header: {
         marginBottom: spacing[3],
@@ -123,15 +131,43 @@ const styles = StyleSheet.create({
         color: colors.text.primary,
         flex: 1,
         marginRight: spacing[2],
+        fontWeight: '700',
+    },
+    openBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: colors.success.light + '20',
+        paddingHorizontal: spacing[2],
+        paddingVertical: 4,
+        borderRadius: borderRadius.full,
+    },
+    openIndicator: {
+        width: 6,
+        height: 6,
+        borderRadius: 3,
+        backgroundColor: colors.success.main,
+        marginRight: 6,
+    },
+    openText: {
+        ...typography.caption,
+        color: colors.success.main,
+        fontWeight: '600',
     },
     description: {
         ...typography.bodySmall,
         color: colors.text.secondary,
         marginTop: spacing[1],
+        lineHeight: 20,
+    },
+    divider: {
+        height: 1,
+        backgroundColor: colors.border.light,
+        opacity: 0.5,
+        marginBottom: spacing[3],
     },
     details: {
         marginBottom: spacing[3],
-        gap: spacing[1],
+        gap: spacing[2],
     },
     detailRow: {
         flexDirection: 'row',
@@ -139,17 +175,15 @@ const styles = StyleSheet.create({
         gap: spacing[2],
     },
     detailText: {
-        ...typography.bodySmall,
+        ...typography.caption,
         color: colors.text.secondary,
         flex: 1,
+        fontWeight: '500',
     },
     footer: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingTop: spacing[3],
-        borderTopWidth: 1,
-        borderTopColor: colors.border.light,
     },
     creatorInfo: {
         flexDirection: 'row',
@@ -157,35 +191,38 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     creatorName: {
-        ...typography.bodySmall,
-        color: colors.text.secondary,
+        ...typography.caption,
+        color: colors.text.primary,
         marginLeft: spacing[2],
         flex: 1,
+        fontWeight: '500',
     },
     memberInfo: {
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: colors.background.tertiary,
-        paddingHorizontal: spacing[2],
-        paddingVertical: 2,
-        borderRadius: borderRadius.full,
+        paddingHorizontal: spacing[3],
+        paddingVertical: 4,
+        borderRadius: borderRadius.md,
     },
     memberCount: {
         ...typography.caption,
         color: colors.text.secondary,
-        fontWeight: '500',
+        fontWeight: '600',
     },
     joinButton: {
-        marginTop: spacing[3],
+        marginTop: spacing[4],
     },
     memberBadge: {
-        marginTop: spacing[3],
+        marginTop: spacing[4],
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
-        backgroundColor: colors.success.light + '20',
+        backgroundColor: colors.success.light + '15',
         paddingVertical: spacing[2],
-        borderRadius: borderRadius.md,
+        paddingHorizontal: spacing[4],
+        borderRadius: borderRadius.lg,
+        alignSelf: 'flex-start',
     },
     memberBadgeText: {
         ...typography.bodySmall,

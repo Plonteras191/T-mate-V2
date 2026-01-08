@@ -1,7 +1,8 @@
 // ChatHeader Component
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { IconButton } from '../common/IconButton';
 import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
 import { spacing } from '../../theme/spacing';
@@ -23,9 +24,11 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
         <SafeAreaView edges={['top']} style={styles.safeArea}>
             <View style={styles.container}>
                 {/* Back button */}
-                <TouchableOpacity onPress={onBackPress} style={styles.backButton}>
-                    <Text style={styles.backIcon}>←</Text>
-                </TouchableOpacity>
+                <IconButton
+                    icon="arrow-left"
+                    onPress={onBackPress}
+                    variant="ghost"
+                />
 
                 {/* Group info */}
                 <View style={styles.titleContainer}>
@@ -41,9 +44,11 @@ export const ChatHeader: React.FC<ChatHeaderProps> = ({
 
                 {/* Info button (optional) */}
                 {onInfoPress && (
-                    <TouchableOpacity onPress={onInfoPress} style={styles.infoButton}>
-                        <Text style={styles.infoIcon}>ℹ️</Text>
-                    </TouchableOpacity>
+                    <IconButton
+                        icon="info"
+                        onPress={onInfoPress}
+                        variant="ghost"
+                    />
                 )}
             </View>
         </SafeAreaView>
@@ -63,16 +68,6 @@ const styles = StyleSheet.create({
         paddingVertical: spacing[2],
         minHeight: 56,
     },
-    backButton: {
-        width: 44,
-        height: 44,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    backIcon: {
-        fontSize: 24,
-        color: colors.primary.main,
-    },
     titleContainer: {
         flex: 1,
         marginHorizontal: spacing[2],
@@ -80,19 +75,12 @@ const styles = StyleSheet.create({
     groupName: {
         ...typography.h4,
         color: colors.text.primary,
+        fontSize: 16,
     },
     memberCount: {
         ...typography.caption,
-        color: colors.text.secondary,
-        marginTop: 2,
-    },
-    infoButton: {
-        width: 44,
-        height: 44,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    infoIcon: {
-        fontSize: 20,
+        color: colors.text.tertiary,
+        marginTop: 0,
+        fontSize: 12,
     },
 });

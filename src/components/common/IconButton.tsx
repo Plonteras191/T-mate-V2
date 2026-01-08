@@ -2,19 +2,19 @@
 import React from 'react';
 import {
     TouchableOpacity,
-    Text,
     StyleSheet,
     ViewStyle,
     ActivityIndicator,
 } from 'react-native';
+import { Feather } from '@expo/vector-icons';
 import { colors } from '../../theme/colors';
-import { spacing, borderRadius, shadows } from '../../theme/spacing';
+import { shadows } from '../../theme/spacing';
 
 type IconButtonVariant = 'primary' | 'secondary' | 'ghost';
 type IconButtonSize = 'small' | 'medium' | 'large';
 
 interface IconButtonProps {
-    icon: string;
+    icon: keyof typeof Feather.glyphMap;
     onPress: () => void;
     variant?: IconButtonVariant;
     size?: IconButtonSize;
@@ -90,9 +90,7 @@ export const IconButton: React.FC<IconButtonProps> = ({
             {loading ? (
                 <ActivityIndicator size="small" color={getIconColor()} />
             ) : (
-                <Text style={[styles.icon, { fontSize: iconSize, color: getIconColor() }]}>
-                    {icon}
-                </Text>
+                <Feather name={icon} size={iconSize} color={getIconColor()} />
             )}
         </TouchableOpacity>
     );
@@ -103,5 +101,4 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
     },
-    icon: {},
 });

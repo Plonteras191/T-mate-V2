@@ -6,13 +6,14 @@ import {
     StyleSheet,
     ViewStyle,
 } from 'react-native';
+import { Feather } from '@expo/vector-icons';
 import { Button } from './Button';
 import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
 import { spacing } from '../../theme/spacing';
 
 interface EmptyStateProps {
-    icon?: string;
+    icon?: keyof typeof Feather.glyphMap;
     title: string;
     description?: string;
     actionLabel?: string;
@@ -21,7 +22,7 @@ interface EmptyStateProps {
 }
 
 export const EmptyState: React.FC<EmptyStateProps> = ({
-    icon = '📭',
+    icon = 'inbox',
     title,
     description,
     actionLabel,
@@ -30,7 +31,7 @@ export const EmptyState: React.FC<EmptyStateProps> = ({
 }) => {
     return (
         <View style={[styles.container, style]}>
-            <Text style={styles.icon}>{icon}</Text>
+            <Feather name={icon} size={64} color={colors.text.tertiary} style={styles.icon} />
             <Text style={styles.title}>{title}</Text>
             {description && (
                 <Text style={styles.description}>{description}</Text>
@@ -55,7 +56,6 @@ const styles = StyleSheet.create({
         padding: spacing[8],
     },
     icon: {
-        fontSize: 64,
         marginBottom: spacing[4],
     },
     title: {

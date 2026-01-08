@@ -2,51 +2,80 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
+import { useNavigation } from '@react-navigation/native';
 import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
 import { spacing, borderRadius, shadows } from '../../theme/spacing';
+import type { StudyGroupWithDetails } from '../../services/groups.service';
 
 const { width } = Dimensions.get('window');
 const CARD_WIDTH = width * 0.75;
 
-interface FeaturedGroup {
-    id: string;
-    title: string;
-    subject: string;
-    members: number;
-    location: string;
-    color: string[];
-}
-
-// Mock data for featured groups - in real app could come from props or API
-const FEATURED_GROUPS: FeaturedGroup[] = [
+// Mock data for featured groups matching StudyGroupWithDetails structure
+const FEATURED_GROUPS: Partial<StudyGroupWithDetails & { color: string[] }>[] = [
     {
-        id: '1',
-        title: 'Advanced Calculus Study',
+        id: 'featured-1',
         subject: 'Mathematics',
-        members: 12,
-        location: 'Central Library',
-        color: ['#4F46E5', '#818CF8'],
+        description: 'Advanced Calculus study group focusing on integration techniques and differential equations.',
+        meeting_schedule: new Date(Date.now() + 86400000).toISOString(),
+        meeting_location: 'Central Library, Room 304',
+        max_capacity: 15,
+        member_count: 12,
+        is_full: false,
+        creator: {
+            id: 'mock-creator-1',
+            full_name: 'Sarah Chen',
+            profile_photo_url: null,
+        },
+        color: ['#4F46E5', '#818CF8'], // Indigo
     },
     {
-        id: '2',
-        title: 'React Native Workshop',
+        id: 'featured-2',
         subject: 'Computer Science',
-        members: 24,
-        location: 'Tech Hub',
-        color: ['#059669', '#34D399'],
+        description: 'React Native workshop for beginners. Building real-world apps with Expo.',
+        meeting_schedule: new Date(Date.now() + 172800000).toISOString(),
+        meeting_location: 'Tech Hub, Lab 2',
+        max_capacity: 30,
+        member_count: 24,
+        is_full: false,
+        creator: {
+            id: 'mock-creator-2',
+            full_name: 'Alex Rivera',
+            profile_photo_url: null,
+        },
+        color: ['#059669', '#34D399'], // Emerald
     },
     {
-        id: '3',
-        title: 'Physics Finals Prep',
+        id: 'featured-3',
         subject: 'Physics',
-        members: 8,
-        location: 'Science Block',
-        color: ['#DC2626', '#F87171'],
+        description: 'Finals preparation for Physics 101. Mechanics and Thermodynamics review.',
+        meeting_schedule: new Date(Date.now() + 259200000).toISOString(),
+        meeting_location: 'Science Block, Hall B',
+        max_capacity: 10,
+        member_count: 8,
+        is_full: false,
+        creator: {
+            id: 'mock-creator-3',
+            full_name: 'Mike Johnson',
+            profile_photo_url: null,
+        },
+        color: ['#DC2626', '#F87171'], // Red
     },
 ];
 
 export const FeaturedCarousel: React.FC = () => {
+    const navigation = useNavigation<any>();
+
+    const handlePress = (group: any) => {
+        navigation.navigate('Groups', {
+            screen: 'GroupDetails',
+            params: {
+                groupId: group.id,
+                initialData: group,
+            },
+        });
+    };
+
     return (
         <View style={styles.container}>
             <View style={styles.header}>
@@ -61,7 +90,11 @@ export const FeaturedCarousel: React.FC = () => {
                 snapToInterval={CARD_WIDTH + spacing[4]}
             >
                 {FEATURED_GROUPS.map((group) => (
-                    <TouchableOpacity key={group.id} activeOpacity={0.9}>
+                    <TouchableOpacity
+                        key={group.id}
+                        activeOpacity={0.9}
+                        onPress={() => handlePress(group)}
+                    >
                         <LinearGradient
                             colors={group.color as [string, string, ...string[]]}
                             start={{ x: 0, y: 0 }}
@@ -74,17 +107,17 @@ export const FeaturedCarousel: React.FC = () => {
                                 </View>
 
                                 <Text style={styles.cardTitle} numberOfLines={2}>
-                                    {group.title}
+                                    {group.description}
                                 </Text>
 
                                 <View style={styles.cardFooter}>
                                     <View style={styles.infoRow}>
                                         <Feather name="users" size={14} color="rgba(255,255,255,0.9)" />
-                                        <Text style={styles.infoText}>{group.members} members</Text>
+                                        <Text style={styles.infoText}>{group.member_count} members</Text>
                                     </View>
                                     <View style={styles.infoRow}>
                                         <Feather name="map-pin" size={14} color="rgba(255,255,255,0.9)" />
-                                        <Text style={styles.infoText}>{group.location}</Text>
+                                        <Text style={styles.infoText}>{group.meeting_location}</Text>
                                     </View>
                                 </View>
                             </View>
@@ -110,7 +143,7 @@ const styles = StyleSheet.create({
     },
     scrollContent: {
         paddingHorizontal: spacing[4],
-        paddingBottom: spacing[4], // For shadow
+        paddingBottom: spacing[4],
     },
     card: {
         width: CARD_WIDTH,
@@ -140,6 +173,7 @@ const styles = StyleSheet.create({
         ...typography.h3,
         color: '#FFF',
         marginTop: spacing[2],
+        fontSize: 18,
     },
     cardFooter: {
         flexDirection: 'row',

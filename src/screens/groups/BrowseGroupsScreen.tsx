@@ -119,7 +119,7 @@ export const BrowseGroupsScreen: React.FC = () => {
                     showJoinButton
                     membershipMap={membershipMap}
                     joiningGroupId={joiningGroupId}
-                    emptyIcon="🔍"
+                    emptyIcon="search"
                     emptyTitle="No groups found"
                     emptyDescription={selectedCategory !== 'all' ? `No groups found in ${selectedCategory}` : "Try a different search or create your own study group!"}
                     emptyActionLabel="Create Group"

@@ -9,11 +9,12 @@ import {
     Platform,
     Text,
 } from 'react-native';
+import { Feather } from '@expo/vector-icons';
 import type { PendingAttachment } from '../../types/attachment.types';
 import { AttachmentPreview } from './AttachmentPreview';
 import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
-import { spacing } from '../../theme/spacing';
+import { spacing, borderRadius, shadows } from '../../theme/spacing';
 
 interface ChatInputProps {
     value: string;
@@ -49,47 +50,47 @@ export const ChatInput: React.FC<ChatInputProps> = ({
                 />
             )}
             <View style={styles.container}>
-            {/* Attachment button (optional) */}
-            {onAttachmentPress && (
-                <TouchableOpacity
-                    onPress={onAttachmentPress}
-                    style={styles.attachmentButton}
-                    disabled={disabled}
-                >
-                    <Text style={styles.attachmentIcon}>📎</Text>
-                </TouchableOpacity>
-            )}
-
-            {/* Text input */}
-            <View style={styles.inputContainer}>
-                <TextInput
-                    style={styles.input}
-                    value={value}
-                    onChangeText={onChangeText}
-                    placeholder={placeholder}
-                    placeholderTextColor={colors.text.tertiary}
-                    multiline
-                    maxLength={1000}
-                    editable={!disabled}
-                />
-            </View>
-
-            {/* Send button */}
-            <TouchableOpacity
-                onPress={onSend}
-                style={[
-                    styles.sendButton,
-                    canSend && styles.sendButtonActive,
-                    !canSend && styles.sendButtonDisabled,
-                ]}
-                disabled={!canSend}
-            >
-                {sending ? (
-                    <ActivityIndicator size="small" color={colors.text.inverse} />
-                ) : (
-                    <Text style={styles.sendIcon}>➤</Text>
+                {/* Attachment button (optional) */}
+                {onAttachmentPress && (
+                    <TouchableOpacity
+                        onPress={onAttachmentPress}
+                        style={styles.attachmentButton}
+                        disabled={disabled}
+                    >
+                        <Feather name="paperclip" size={24} color={colors.text.secondary} />
+                    </TouchableOpacity>
                 )}
-            </TouchableOpacity>
+
+                {/* Text input */}
+                <View style={styles.inputContainer}>
+                    <TextInput
+                        style={styles.input}
+                        value={value}
+                        onChangeText={onChangeText}
+                        placeholder={placeholder}
+                        placeholderTextColor={colors.text.tertiary}
+                        multiline
+                        maxLength={1000}
+                        editable={!disabled}
+                    />
+                </View>
+
+                {/* Send button */}
+                <TouchableOpacity
+                    onPress={onSend}
+                    style={[
+                        styles.sendButton,
+                        canSend && styles.sendButtonActive,
+                        !canSend && styles.sendButtonDisabled,
+                    ]}
+                    disabled={!canSend}
+                >
+                    {sending ? (
+                        <ActivityIndicator size="small" color={colors.text.inverse} />
+                    ) : (
+                        <Feather name="send" size={20} color={canSend ? colors.text.inverse : colors.text.disabled} />
+                    )}
+                </TouchableOpacity>
             </View>
         </>
     );
@@ -116,34 +117,31 @@ const styles = StyleSheet.create({
     inputContainer: {
         flex: 1,
         backgroundColor: colors.background.tertiary,
-        borderRadius: 20,
+        borderRadius: borderRadius.full,
         paddingHorizontal: spacing[4],
         paddingVertical: Platform.OS === 'ios' ? spacing[2] : spacing[1],
         minHeight: 40,
         maxHeight: 120,
+        marginRight: spacing[2],
     },
     input: {
         ...typography.body,
         color: colors.text.primary,
-        paddingTop: Platform.OS === 'ios' ? 8 : 0,
-        paddingBottom: Platform.OS === 'ios' ? 8 : 0,
+        paddingTop: Platform.OS === 'ios' ? 8 : 4,
+        paddingBottom: Platform.OS === 'ios' ? 8 : 4,
     },
     sendButton: {
-        width: 40,
-        height: 40,
-        borderRadius: 20,
+        width: 44,
+        height: 44,
+        borderRadius: 22,
         justifyContent: 'center',
         alignItems: 'center',
-        marginLeft: spacing[2],
     },
     sendButtonActive: {
         backgroundColor: colors.primary.main,
+        ...shadows.sm,
     },
     sendButtonDisabled: {
         backgroundColor: colors.background.tertiary,
-    },
-    sendIcon: {
-        fontSize: 18,
-        color: colors.text.inverse,
     },
 });

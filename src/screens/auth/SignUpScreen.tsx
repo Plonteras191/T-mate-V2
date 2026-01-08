@@ -12,7 +12,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { Button, Input, LoadingSpinner } from '../../components/common';
+import { Button, Input, LoadingSpinner, IconButton } from '../../components/common';
 import { useAuth } from '../../hooks/useAuth';
 import { validateSignUp } from '../../utils/validation';
 import { colors } from '../../theme/colors';
@@ -92,9 +92,12 @@ export const SignUpScreen: React.FC = () => {
                     showsVerticalScrollIndicator={false}
                 >
                     {/* Back Button */}
-                    <TouchableOpacity onPress={handleBack} style={styles.backButton}>
-                        <Text style={styles.backButtonText}>← Back</Text>
-                    </TouchableOpacity>
+                    <IconButton
+                        icon="arrow-left"
+                        onPress={handleBack}
+                        variant="ghost"
+                        style={styles.backButton}
+                    />
 
                     {/* Header */}
                     <View style={styles.header}>

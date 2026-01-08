@@ -21,22 +21,35 @@ interface UseGroupDetailsReturn {
     actionLoading: boolean;
 }
 
-export const useGroupDetails = (groupId: string): UseGroupDetailsReturn => {
-    const [group, setGroup] = useState<StudyGroupWithDetails | null>(null);
+export const useGroupDetails = (
+    groupId: string,
+    initialData?: StudyGroupWithDetails
+): UseGroupDetailsReturn => {
+    const [group, setGroup] = useState<StudyGroupWithDetails | null>(initialData || null);
     const [members, setMembers] = useState<GroupMemberWithUser[]>([]);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(!initialData);
     const [actionLoading, setActionLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [isMember, setIsMember] = useState(false);
     const [isCreator, setIsCreator] = useState(false);
 
     const fetchGroupDetails = useCallback(async () => {
+        // If we have initial data and haven't fetched yet, we might want to just fetch members
+        // But for now, let's keep it simple: if initialData is provided, we skip the initial group fetch
+        // unless we explicitly call refetch.
+        // However, we still need to fetch members and check membership status.
+
         try {
-            setLoading(true);
+            if (!initialData || group !== initialData) {
+                setLoading(true);
+            }
             setError(null);
 
             const [groupResult, membersResult] = await Promise.all([
-                groupsService.getGroupById(groupId),
+                // Only fetch group if we don't have it or if we're refetching
+                (!initialData || group !== initialData)
+                    ? groupsService.getGroupById(groupId)
+                    : Promise.resolve({ success: true, data: initialData } as any),
                 membersService.getGroupMembers(groupId),
             ]);
 
@@ -49,7 +62,7 @@ export const useGroupDetails = (groupId: string): UseGroupDetailsReturn => {
                     setIsCreator(groupResult.data.creator_id === user.id);
                 }
             } else {
-                setError(groupResult.message);
+                setError(groupResult.message || 'Failed to fetch group');
             }
 
             if (membersResult.success) {
@@ -67,12 +80,14 @@ export const useGroupDetails = (groupId: string): UseGroupDetailsReturn => {
         } finally {
             setLoading(false);
         }
-    }, [groupId]);
+    }, [groupId, initialData]);
 
     useEffect(() => {
-        if (groupId) {
-            fetchGroupDetails();
-        }
+        // If we have initialData, we can skip the first fetch for the group itself,
+        // but we normally still need to check membership/members.
+        // For the mock data scenario (User Request), we want to display the data immediately.
+        // We will call fetchGroupDetails to get members/auth status, but the group data won't be overwritten if it fails (hopefully).
+        fetchGroupDetails();
     }, [groupId, fetchGroupDetails]);
 
     const joinGroup = useCallback(async (): Promise<boolean> => {
@@ -118,7 +133,7 @@ export const useGroupDetails = (groupId: string): UseGroupDetailsReturn => {
         error,
         isMember,
         isCreator,
-        memberCount: members.length,
+        memberCount: members.length > 0 ? members.length : (group?.member_count || 0),
         joinGroup,
         leaveGroup,
         removeMember,

@@ -6,6 +6,7 @@ import {
     RefreshControl,
     View,
 } from 'react-native';
+import { Feather } from '@expo/vector-icons';
 import { GroupCard } from './GroupCard';
 import { EmptyState, LoadingSpinner } from '../common';
 import { colors } from '../../theme/colors';
@@ -22,7 +23,7 @@ interface GroupListProps {
     showJoinButton?: boolean;
     membershipMap?: Record<string, boolean>;
     joiningGroupId?: string | null;
-    emptyIcon?: string;
+    emptyIcon?: keyof typeof Feather.glyphMap;
     emptyTitle?: string;
     emptyDescription?: string;
     emptyActionLabel?: string;
@@ -42,7 +43,7 @@ export const GroupList: React.FC<GroupListProps> = ({
     showJoinButton = false,
     membershipMap = {},
     joiningGroupId,
-    emptyIcon = '📚',
+    emptyIcon = 'book-open',
     emptyTitle = 'No groups found',
     emptyDescription = 'Be the first to create a study group!',
     emptyActionLabel,
