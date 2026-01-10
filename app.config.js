@@ -40,8 +40,17 @@ export default {
             favicon: "./assets/favicon.png"
         },
         plugins: [
+            "expo-system-ui",
             "expo-secure-store",
             "@react-native-community/datetimepicker",
+            [
+                "expo-build-properties",
+                {
+                    android: {
+                        enablePngCrunchInReleaseBuilds: false
+                    }
+                }
+            ],
             "expo-font"
         ],
         owner: "johnplonteras"
