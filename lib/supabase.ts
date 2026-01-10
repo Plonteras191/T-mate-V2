@@ -3,18 +3,12 @@ import { createClient } from '@supabase/supabase-js'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import Constants from 'expo-constants'
 
-// Supabase configuration - using hardcoded values for production builds
-// These values are directly embedded to ensure they're always available
-const supabaseUrl = 'https://jdirkfwwgsiktmluutxr.supabase.co'
-const supabaseAnonKey = 'sb_publishable_oLpjcNrAQ35o4XmBgeuGMw_zV341rcT'
+const supabaseUrl = Constants.expoConfig?.extra?.supabaseUrl
+const supabaseAnonKey = Constants.expoConfig?.extra?.supabasePublishableKey
 
-console.log('Supabase Config Check:', {
-  url: supabaseUrl,
-  key: supabaseAnonKey,
-  urlLength: supabaseUrl?.length,
-  keyLength: supabaseAnonKey?.length,
-  configExtra: Constants.expoConfig?.extra
-})
+if (!supabaseUrl || !supabaseAnonKey) {
+  throw new Error('Missing Supabase environment variables')
+}
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
