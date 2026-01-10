@@ -1,9 +1,10 @@
 // MeetingCard Component - Display meeting details
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
+import { Feather } from '@expo/vector-icons';
 import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
-import { spacing } from '../../theme/spacing';
+import { spacing, borderRadius, shadows } from '../../theme/spacing';
 import type { CalendarEvent } from '../../types/calendar.types';
 
 interface MeetingCardProps {
@@ -27,14 +28,6 @@ export const MeetingCard: React.FC<MeetingCardProps> = ({
         });
     };
 
-    const formatDate = (date: Date): string => {
-        return date.toLocaleDateString('en-US', {
-            weekday: 'short',
-            month: 'short',
-            day: 'numeric',
-        });
-    };
-
     const handleAddToCalendar = async () => {
         setAdding(true);
         try {
@@ -51,66 +44,63 @@ export const MeetingCard: React.FC<MeetingCardProps> = ({
         <TouchableOpacity
             style={styles.container}
             onPress={onPress}
-            activeOpacity={0.7}
+            activeOpacity={0.95}
         >
-            {/* Time indicator */}
-            <View style={styles.timeColumn}>
-                <Text style={styles.timeText}>{formatTime(event.startDate)}</Text>
-                <View style={styles.timeLine} />
-            </View>
+            {/* Left side accent bar */}
+            <View style={styles.accentBar} />
 
-            {/* Meeting details */}
             <View style={styles.content}>
                 <View style={styles.header}>
-                    <Text style={styles.title} numberOfLines={1}>
-                        {event.title}
-                    </Text>
-                    {event.isCreator && (
-                        <View style={styles.creatorBadge}>
-                            <Text style={styles.creatorText}>Admin</Text>
-                        </View>
-                    )}
+                    <View style={styles.titleContainer}>
+                        <Text style={styles.title} numberOfLines={1}>
+                            {event.title}
+                        </Text>
+                        {event.isCreator && (
+                            <View style={styles.adminBadge}>
+                                <Text style={styles.adminText}>Admin</Text>
+                            </View>
+                        )}
+                    </View>
+                    <TouchableOpacity
+                        style={styles.calendarButton}
+                        onPress={handleAddToCalendar}
+                        disabled={adding}
+                    >
+                        <Feather
+                            name={adding ? "loader" : "calendar"}
+                            size={18}
+                            color={colors.primary.main}
+                        />
+                    </TouchableOpacity>
                 </View>
 
-                <Text style={styles.description} numberOfLines={2}>
-                    {event.description}
-                </Text>
+                <View style={styles.timeContainer}>
+                    <Feather name="clock" size={14} color={colors.primary.main} />
+                    <Text style={styles.timeText}>{formatTime(event.startDate)}</Text>
+                </View>
 
-                <View style={styles.details}>
+                {event.description ? (
+                    <Text style={styles.description} numberOfLines={2}>
+                        {event.description}
+                    </Text>
+                ) : null}
+
+                <View style={styles.footer}>
                     <View style={styles.detailItem}>
-                        <Text style={styles.detailIcon}>📍</Text>
+                        <Feather name="map-pin" size={14} color={colors.text.tertiary} />
                         <Text style={styles.detailText} numberOfLines={1}>
                             {event.location}
                         </Text>
                     </View>
 
                     <View style={styles.detailItem}>
-                        <Text style={styles.detailIcon}>👥</Text>
+                        <Feather name="users" size={14} color={colors.text.tertiary} />
                         <Text style={styles.detailText}>
                             {event.memberCount}
-                            {event.maxCapacity ? `/${event.maxCapacity}` : ''} members
-                        </Text>
-                    </View>
-
-                    <View style={styles.detailItem}>
-                        <Text style={styles.detailIcon}>📅</Text>
-                        <Text style={styles.detailText}>
-                            {formatDate(event.startDate)}
+                            {event.maxCapacity ? `/${event.maxCapacity}` : ''}
                         </Text>
                     </View>
                 </View>
-
-                {/* Add to calendar button */}
-                <TouchableOpacity
-                    style={styles.addButton}
-                    onPress={handleAddToCalendar}
-                    disabled={adding}
-                >
-                    <Text style={styles.addButtonIcon}>📲</Text>
-                    <Text style={styles.addButtonText}>
-                        {adding ? 'Adding...' : 'Add to Calendar'}
-                    </Text>
-                </TouchableOpacity>
             </View>
         </TouchableOpacity>
     );
@@ -120,98 +110,93 @@ const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
         backgroundColor: colors.surface.primary,
-        borderRadius: 12,
+        borderRadius: borderRadius.lg,
         marginHorizontal: spacing[4],
-        marginVertical: spacing[2],
-        padding: spacing[3],
-        shadowColor: colors.text.primary,
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
+        marginBottom: spacing[3],
+        ...shadows.sm,
+        shadowColor: '#000',
         elevation: 2,
+        overflow: 'hidden',
     },
-    timeColumn: {
-        alignItems: 'center',
-        marginRight: spacing[3],
-        width: 50,
-    },
-    timeText: {
-        ...typography.caption,
-        color: colors.primary.main,
-        fontWeight: '600',
-    },
-    timeLine: {
-        flex: 1,
-        width: 2,
-        backgroundColor: colors.primary.light,
-        marginTop: spacing[2],
-        borderRadius: 1,
+    accentBar: {
+        width: 4,
+        backgroundColor: colors.primary.main,
     },
     content: {
         flex: 1,
+        padding: spacing[4],
     },
     header: {
         flexDirection: 'row',
-        alignItems: 'center',
+        justifyContent: 'space-between',
+        alignItems: 'flex-start',
         marginBottom: spacing[1],
+    },
+    titleContainer: {
+        flex: 1,
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginRight: spacing[2],
     },
     title: {
         ...typography.h4,
         color: colors.text.primary,
-        flex: 1,
+        fontWeight: '700',
+        fontSize: 16,
     },
-    creatorBadge: {
-        backgroundColor: colors.primary.light,
+    adminBadge: {
+        backgroundColor: colors.primary.light + '20', // lighter opacity
         paddingHorizontal: spacing[2],
         paddingVertical: 2,
-        borderRadius: 4,
+        borderRadius: borderRadius.sm,
         marginLeft: spacing[2],
     },
-    creatorText: {
-        ...typography.caption,
-        color: colors.primary.main,
+    adminText: {
         fontSize: 10,
+        fontWeight: '700',
+        color: colors.primary.main,
+        textTransform: 'uppercase',
+    },
+    calendarButton: {
+        padding: spacing[2],
+        backgroundColor: colors.surface.secondary,
+        borderRadius: borderRadius.full,
+    },
+    timeContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        marginBottom: spacing[2],
+    },
+    timeText: {
+        ...typography.body,
+        color: colors.primary.main,
         fontWeight: '600',
+        fontSize: 14,
+        marginLeft: spacing[1],
     },
     description: {
         ...typography.body,
         color: colors.text.secondary,
-        marginBottom: spacing[2],
+        fontSize: 14,
+        marginBottom: spacing[3],
     },
-    details: {
-        marginBottom: spacing[2],
+    footer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: spacing[4],
+        paddingTop: spacing[2],
+        borderTopWidth: 1,
+        borderTopColor: colors.border.light,
     },
     detailItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: spacing[1],
-    },
-    detailIcon: {
-        fontSize: 14,
-        marginRight: spacing[2],
+        gap: spacing[1],
+        flexShrink: 1,
     },
     detailText: {
         ...typography.caption,
         color: colors.text.secondary,
-        flex: 1,
-    },
-    addButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-        backgroundColor: colors.primary.light,
-        paddingVertical: spacing[2],
-        paddingHorizontal: spacing[3],
-        borderRadius: 8,
-        marginTop: spacing[1],
-    },
-    addButtonIcon: {
-        fontSize: 16,
-        marginRight: spacing[2],
-    },
-    addButtonText: {
-        ...typography.caption,
-        color: colors.primary.main,
-        fontWeight: '600',
+        fontSize: 13,
     },
 });

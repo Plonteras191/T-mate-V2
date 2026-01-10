@@ -7,6 +7,7 @@ import {
     ActivityIndicator,
     ViewStyle,
     TextStyle,
+    View,
 } from 'react-native';
 import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
@@ -25,6 +26,7 @@ interface ButtonProps {
     fullWidth?: boolean;
     style?: ViewStyle;
     textStyle?: TextStyle;
+    icon?: React.ReactNode;
 }
 
 export const Button: React.FC<ButtonProps> = ({
@@ -37,6 +39,7 @@ export const Button: React.FC<ButtonProps> = ({
     fullWidth = false,
     style,
     textStyle,
+    icon,
 }) => {
     const isDisabled = disabled || loading;
 
@@ -133,18 +136,21 @@ export const Button: React.FC<ButtonProps> = ({
                     color={getTextColor()}
                 />
             ) : (
-                <Text
-                    style={[
-                        styles.text,
-                        {
-                            color: getTextColor(),
-                            fontSize: getFontSize(),
-                        },
-                        textStyle,
-                    ]}
-                >
-                    {title}
-                </Text>
+                <>
+                    {icon && <View style={styles.iconContainer}>{icon}</View>}
+                    <Text
+                        style={[
+                            styles.text,
+                            {
+                                color: getTextColor(),
+                                fontSize: getFontSize(),
+                            },
+                            textStyle,
+                        ]}
+                    >
+                        {title}
+                    </Text>
+                </>
             )}
         </TouchableOpacity>
     );
@@ -166,4 +172,7 @@ const styles = StyleSheet.create({
         fontWeight: typography.button.fontWeight,
         textAlign: 'center',
     },
+    iconContainer: {
+        marginRight: spacing[2],
+    }
 });

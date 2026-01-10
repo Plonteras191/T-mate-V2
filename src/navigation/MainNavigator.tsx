@@ -43,7 +43,7 @@ export const MainNavigator: React.FC = () => {
                 component={GroupsNavigator}
                 options={({ route }) => {
                     const routeName = getFocusedRouteNameFromRoute(route) ?? 'BrowseGroups';
-                    const hiddenRoutes = ['CreateGroup', 'EditGroup', 'GroupChat', 'ImageViewer'];
+                    const hiddenRoutes = ['CreateGroup', 'EditGroup', 'GroupChat', 'ImageViewer', 'GroupDetails'];
 
                     if (hiddenRoutes.includes(routeName)) {
                         return {
