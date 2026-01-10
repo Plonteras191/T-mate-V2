@@ -6,7 +6,7 @@ export default {
         slug: "T-mate",
         version: "1.0.0",
         orientation: "portrait",
-        icon: "./assets/icon.png",
+        icon: "./assets/Ticon.png",
         userInterfaceStyle: "light",
         newArchEnabled: true,
         extra: {
