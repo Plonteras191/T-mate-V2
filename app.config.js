@@ -10,7 +10,6 @@ export default {
         userInterfaceStyle: "light",
         newArchEnabled: true,
         extra: {
-            // For production builds, you MUST hardcode these values or use EAS Secrets
             // .env files are NOT included in production builds
             supabaseUrl: process.env.EXPO_PUBLIC_SUPABASE_URL || "https://jdirkfwwgsiktmluutxr.supabase.co",
             supabasePublishableKey: process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY || "sb_publishable_oLpjcNrAQ35o4XmBgeuGMw_zV341rcT",
@@ -19,9 +18,9 @@ export default {
             }
         },
         splash: {
-            image: "./assets/splash-icon.png",
+            image: "./assets/Ticon.png",
             resizeMode: "contain",
-            backgroundColor: "#ffffff"
+            backgroundColor: "none"
         },
         ios: {
             supportsTablet: true,
@@ -29,15 +28,15 @@ export default {
         },
         android: {
             adaptiveIcon: {
-                foregroundImage: "./assets/adaptive-icon.png",
-                backgroundColor: "#ffffff"
+                foregroundImage: "./assets/Ticon.png",
+                backgroundColor: "none"
             },
             edgeToEdgeEnabled: true,
             predictiveBackGestureEnabled: false,
             package: "com.johnplonteras.tmate"
         },
         web: {
-            favicon: "./assets/favicon.png"
+            favicon: "./assets/Ticon.png"
         },
         plugins: [
             "expo-system-ui",

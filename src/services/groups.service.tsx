@@ -1,6 +1,7 @@
 // Groups Service - CRUD operations for study groups
 import { supabase } from './supabase';
 import type { StudyGroup } from '../types/database.types';
+import { getDateRangeForFilter, filterByTimeSlot } from '../utils/dateFilter.utils';
 
 export interface CreateGroupInput {
     subject: string;
@@ -22,6 +23,8 @@ export interface GroupFilters {
     availability?: 'open' | 'full' | 'all';
     dateFrom?: string;
     dateTo?: string;
+    dateRange?: 'all' | 'today' | 'week' | 'month';
+    timeSlot?: 'all' | 'morning' | 'afternoon' | 'evening';
 }
 
 export interface CreatorInfo {
@@ -64,19 +67,32 @@ export const getAllGroups = async (
             .order('created_at', { ascending: false })
             .range(page * PAGE_SIZE, (page + 1) * PAGE_SIZE - 1);
 
-        // Apply filters
+        // Apply availability filters
         if (filters?.availability === 'open') {
             query = query.eq('is_full', false);
         } else if (filters?.availability === 'full') {
             query = query.eq('is_full', true);
         }
 
-        if (filters?.dateFrom) {
-            query = query.gte('meeting_schedule', filters.dateFrom);
+        // Convert dateRange to dateFrom/dateTo if provided
+        let dateFrom = filters?.dateFrom;
+        let dateTo = filters?.dateTo;
+
+        if (filters?.dateRange) {
+            const range = getDateRangeForFilter(filters.dateRange);
+            if (range) {
+                dateFrom = range.start;
+                dateTo = range.end;
+            }
         }
 
-        if (filters?.dateTo) {
-            query = query.lte('meeting_schedule', filters.dateTo);
+        // Apply date filters
+        if (dateFrom) {
+            query = query.gte('meeting_schedule', dateFrom);
+        }
+
+        if (dateTo) {
+            query = query.lte('meeting_schedule', dateTo);
         }
 
         const { data, error } = await query;
@@ -113,10 +129,20 @@ export const getAllGroups = async (
             })
         );
 
+        // Apply time slot filter (client-side)
+        let filteredGroups = groupsWithDetails;
+        if (filters?.timeSlot) {
+            filteredGroups = filterByTimeSlot(
+                groupsWithDetails,
+                'meeting_schedule',
+                filters.timeSlot
+            );
+        }
+
         return {
             success: true,
             message: 'Groups fetched successfully',
-            data: groupsWithDetails,
+            data: filteredGroups,
             hasMore: (data?.length || 0) === PAGE_SIZE,
         };
     } catch (error) {

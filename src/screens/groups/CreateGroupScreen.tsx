@@ -74,10 +74,10 @@ export const CreateGroupScreen: React.FC = () => {
             Alert.alert('Success', 'Study group created!', [
                 {
                     text: 'OK',
-                    onPress: () => navigation.replace('Groups', {
-                        screen: 'GroupDetails',
-                        params: { groupId: result.data!.id }
-                    }),
+                    onPress: () => {
+                        // Navigate to the group details screen
+                        navigation.navigate('GroupDetails', { groupId: result.data!.id });
+                    },
                 },
             ]);
         } else {

@@ -3,6 +3,7 @@ import { useState, useEffect, useCallback } from 'react';
 import * as groupsService from '../services/groups.service';
 import * as membersService from '../services/members.service';
 import type { StudyGroupWithDetails } from '../services/groups.service';
+import type { DateRangeFilter, TimeSlotFilter } from '../utils/dateFilter.utils';
 
 type FilterType = 'all' | 'open' | 'full';
 
@@ -16,6 +17,10 @@ interface UseGroupsReturn {
     setSearchQuery: (query: string) => void;
     filter: FilterType;
     setFilter: (filter: FilterType) => void;
+    dateRangeFilter: DateRangeFilter;
+    setDateRangeFilter: (filter: DateRangeFilter) => void;
+    timeSlotFilter: TimeSlotFilter;
+    setTimeSlotFilter: (filter: TimeSlotFilter) => void;
     hasMore: boolean;
     loadMore: () => Promise<void>;
     membershipMap: Record<string, boolean>;
@@ -30,6 +35,8 @@ export const useGroups = (): UseGroupsReturn => {
     const [error, setError] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState('');
     const [filter, setFilter] = useState<FilterType>('all');
+    const [dateRangeFilter, setDateRangeFilter] = useState<DateRangeFilter>('all');
+    const [timeSlotFilter, setTimeSlotFilter] = useState<TimeSlotFilter>('all');
     const [page, setPage] = useState(0);
     const [hasMore, setHasMore] = useState(true);
     const [membershipMap, setMembershipMap] = useState<Record<string, boolean>>({});
@@ -51,6 +58,8 @@ export const useGroups = (): UseGroupsReturn => {
             } else {
                 result = await groupsService.getAllGroups(0, {
                     availability: filter === 'all' ? undefined : filter,
+                    dateRange: dateRangeFilter === 'all' ? undefined : dateRangeFilter,
+                    timeSlot: timeSlotFilter === 'all' ? undefined : timeSlotFilter,
                 });
             }
 
@@ -73,7 +82,7 @@ export const useGroups = (): UseGroupsReturn => {
             setLoading(false);
             setRefreshing(false);
         }
-    }, [searchQuery, filter]);
+    }, [searchQuery, filter, dateRangeFilter, timeSlotFilter]);
 
     const loadMore = useCallback(async () => {
         if (!hasMore || loading) return;
@@ -82,6 +91,8 @@ export const useGroups = (): UseGroupsReturn => {
             const nextPage = page + 1;
             const result = await groupsService.getAllGroups(nextPage, {
                 availability: filter === 'all' ? undefined : filter,
+                dateRange: dateRangeFilter === 'all' ? undefined : dateRangeFilter,
+                timeSlot: timeSlotFilter === 'all' ? undefined : timeSlotFilter,
             });
 
             if (result.success) {
@@ -99,7 +110,7 @@ export const useGroups = (): UseGroupsReturn => {
         } catch (err) {
             console.error('Error loading more groups:', err);
         }
-    }, [hasMore, loading, page, filter, membershipMap]);
+    }, [hasMore, loading, page, filter, dateRangeFilter, timeSlotFilter, membershipMap]);
 
     const joinGroup = useCallback(async (groupId: string): Promise<boolean> => {
         try {
@@ -128,6 +139,10 @@ export const useGroups = (): UseGroupsReturn => {
         setSearchQuery,
         filter,
         setFilter,
+        dateRangeFilter,
+        setDateRangeFilter,
+        timeSlotFilter,
+        setTimeSlotFilter,
         hasMore,
         loadMore,
         membershipMap,

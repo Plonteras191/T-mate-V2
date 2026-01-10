@@ -4,7 +4,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { SearchBar } from '../../components/common';
-import { GroupList, CategoryFilter, CategoryType } from '../../components/groups';
+import { GroupList, CategoryFilter, CategoryType, ScheduleFilter, TimeSlotFilter } from '../../components/groups';
 import { useGroups } from '../../hooks/useGroups';
 import { colors } from '../../theme/colors';
 import { typography } from '../../theme/typography';
@@ -27,6 +27,10 @@ export const BrowseGroupsScreen: React.FC = () => {
         setSearchQuery,
         filter,
         setFilter,
+        dateRangeFilter,
+        setDateRangeFilter,
+        timeSlotFilter,
+        setTimeSlotFilter,
         hasMore,
         loadMore,
         membershipMap,
@@ -48,10 +52,16 @@ export const BrowseGroupsScreen: React.FC = () => {
         navigation.navigate('CreateGroup');
     };
 
-    // Filter groups locally by category (mock implementation since backend support might be limited)
+    // Filter groups locally by category
     const filteredGroups = selectedCategory === 'all'
         ? groups
-        : groups.filter(g => g.subject.toLowerCase().includes(selectedCategory.toLowerCase()));
+        : groups.filter(g => {
+            // Case-insensitive comparison of subject with category
+            const subject = g.subject.toLowerCase();
+            const category = selectedCategory.toLowerCase();
+            // Check if subject contains the category or starts with it
+            return subject.includes(category) || subject.startsWith(category);
+        });
 
     return (
         <SafeAreaView style={styles.safeArea} edges={['top']}>
@@ -106,6 +116,24 @@ export const BrowseGroupsScreen: React.FC = () => {
                             </Text>
                         </TouchableOpacity>
                     ))}
+                </View>
+
+                {/* Schedule Filter */}
+                <View style={styles.filterSection}>
+                    <Text style={styles.filterSectionTitle}>When</Text>
+                    <ScheduleFilter
+                        selectedSchedule={dateRangeFilter}
+                        onSelectSchedule={setDateRangeFilter}
+                    />
+                </View>
+
+                {/* Time Slot Filter */}
+                <View style={styles.filterSection}>
+                    <Text style={styles.filterSectionTitle}>Time</Text>
+                    <TimeSlotFilter
+                        selectedTimeSlot={timeSlotFilter}
+                        onSelectTimeSlot={setTimeSlotFilter}
+                    />
                 </View>
 
                 {/* Groups List */}
@@ -198,5 +226,17 @@ const styles = StyleSheet.create({
     filterChipTextActive: {
         color: colors.primary.main,
         fontWeight: '600',
+    },
+    filterSection: {
+        marginBottom: spacing[3],
+    },
+    filterSectionTitle: {
+        ...typography.caption,
+        color: colors.text.secondary,
+        fontWeight: '700',
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
+        paddingHorizontal: spacing[4],
+        marginBottom: spacing[2],
     },
 });
