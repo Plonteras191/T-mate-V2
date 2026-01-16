@@ -6,7 +6,7 @@ export default {
         slug: "T-mate",
         version: "1.0.0",
         orientation: "portrait",
-        icon: "./assets/Ticon.png",
+        icon: "./assets/icon.png",
         userInterfaceStyle: "light",
         newArchEnabled: true,
         extra: {
@@ -18,9 +18,9 @@ export default {
             }
         },
         splash: {
-            image: "./assets/Ticon.png",
+            image: "./assets/splash-icon.png",
             resizeMode: "contain",
-            backgroundColor: "none"
+            backgroundColor: "#FFFFFF"
         },
         ios: {
             supportsTablet: true,
@@ -28,15 +28,15 @@ export default {
         },
         android: {
             adaptiveIcon: {
-                foregroundImage: "./assets/Ticon.png",
-                backgroundColor: "none"
+                foregroundImage: "./assets/adaptive-icon.png",
+                backgroundColor: "#FFFFFF"
             },
             edgeToEdgeEnabled: true,
             predictiveBackGestureEnabled: false,
             package: "com.johnplonteras.tmate"
         },
         web: {
-            favicon: "./assets/Ticon.png"
+            favicon: "./assets/favicon.png"
         },
         plugins: [
             "expo-system-ui",
